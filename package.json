@@ -1,0 +1,22 @@
+{
+  "name": "islam-database",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AskYous/islam-database.git"
+  },
+  "author": "Yousef Shanawany <AskYous@Gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AskYous/islam-database/issues"
+  },
+  "homepage": "https://github.com/AskYous/islam-database#readme",
+  "dependencies": {
+    "typescript": "^1.8.10"
+  }
+}
