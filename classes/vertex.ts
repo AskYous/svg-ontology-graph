@@ -21,6 +21,7 @@ class Vertex {
         this.ns = 'http://www.w3.org/2000/svg';
         this.svgGroup = <SVGGElement>document.createElementNS(this.ns, 'g');
         this.displayed = false;
+
     }
 
     /**
@@ -32,7 +33,7 @@ class Vertex {
         let svgPadding = 40;
         let svgWidth = svg.scrollWidth - (svgPadding * 2);
         let svgHeight = svg.scrollHeight - (svgPadding * 2);
-        let radius = svgHeight / 20;
+        this.radius = svgHeight / 20;
 
         let x = Math.random() * svgWidth;
         let y = Math.random() * svgHeight;
@@ -41,7 +42,7 @@ class Vertex {
         this.circleElement = SVGCircleElement = document.createElementNS(this.ns, 'circle') as any;
         this.circleElement.setAttribute('cx', x.toString());
         this.circleElement.setAttribute('cy', y.toString());
-        this.circleElement.setAttribute('r', radius.toString());
+        this.circleElement.setAttribute('r', this.radius.toString());
         this.svgGroup.appendChild(this.circleElement);
 
         // Text
@@ -51,6 +52,39 @@ class Vertex {
         this.textElement.setAttribute('x', this.circleElement.cx.animVal.value.toString());
         this.textElement.setAttribute('y', (this.circleElement.cy.animVal.value + this.circleElement.r.animVal.value + 20).toString());
         this.svgGroup.appendChild(this.textElement);
+
+        // Drag and drop
+        {
+          let mouseY: number;
+          let mouseX: number;
+          let onDrag: number;
+
+          document.onmousemove = event => {
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+          }
+
+          this.circleElement.onmousedown = mousedownevent => {
+            this.isDragging = true;
+          }
+
+          this.circleElement.onmousemove = event => {
+            if(this.isDragging){
+              let x = event.clientX - (2 * this.radius);
+              let y = event.clientY - (2 * this.radius);
+              this.circleElement.setAttribute('cx', x.toString());
+              this.circleElement.setAttribute('cy', y.toString());
+            }
+          }
+
+          this.circleElement.onmouseup = () => {
+            this.isDragging = false;
+          }
+
+          this.circleElement.onmouseout = () => {
+            // this.isDragging = false;
+          }
+        }
 
         // Display it
         this.svg.appendChild(this.svgGroup);

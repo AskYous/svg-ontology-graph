@@ -5,7 +5,7 @@ let svg: SVGGElement = document.getElementsByTagName('svg')[0] as any;
 let people: Array<Person>;
 let relations: Array<Array<number>>;
 
-// Get People
+// Get Data
 $.getJSON('sample-data/people.json', peopleResults => {
     $.getJSON('sample-data/relations.json', relationsResults => {
         people = peopleResults;
