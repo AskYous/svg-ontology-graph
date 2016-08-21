@@ -1,6 +1,13 @@
 let svg = document.getElementsByTagName('svg')[0];
 let ns = 'http://www.w3.org/2000/svg';
 
+let radius = 20;
+
+let svgPadding = 30;
+svg.style.padding = `${svgPadding}px`;
+let svgWidth = svg.scrollWidth - (svgPadding * 2);
+let svgHeight = svg.scrollHeight - (svgPadding * 2);
+
 $.getJSON('sample-data/people.json', people => {
 
   // Display in SVG
@@ -12,9 +19,9 @@ $.getJSON('sample-data/people.json', people => {
 
     // Circle
     let circle = <SVGCircleElement> document.createElementNS(ns, 'circle');
-    circle.setAttribute('cx', ((Math.random() * (svg.scrollWidth - 60)) + 30).toString());
-    circle.setAttribute('cy', ((Math.random() * (svg.scrollHeight - 60)) + 30).toString());
-    circle.setAttribute('r', "30");
+    circle.setAttribute('cx', (Math.random() * svgWidth).toString());
+    circle.setAttribute('cy', (Math.random() * (svgHeight- (svgPadding - radius))).toString());
+    circle.setAttribute('r', radius.toString());
     g.appendChild(circle);
 
     // Text
