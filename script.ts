@@ -14,7 +14,7 @@ $.getJSON('sample-data/people.json', people => {
     let circle = <SVGCircleElement> document.createElementNS(ns, 'circle');
     circle.setAttribute('cx', (Math.random() * svg.scrollWidth).toString());
     circle.setAttribute('cy', (Math.random() * svg.scrollHeight).toString());
-    circle.setAttribute('r', "10");
+    circle.setAttribute('r', "30");
     g.appendChild(circle);
 
     // Text
@@ -40,15 +40,19 @@ $.getJSON('sample-data/people.json', people => {
         let studentCircle: SVGCircleElement = studentGroup.getElementsByTagNameNS(ns, 'circle')[0] as any;
         let teacherCircle: SVGCircleElement = teacherGroup.getElementsByTagNameNS(ns, 'circle')[0] as any;
 
-        let path = <SVGLineElement> document.createElementNS(ns, 'line');
-        path.setAttribute('x1', studentCircle.cx.animVal.value.toString());
-        path.setAttribute('y1', studentCircle.cy.animVal.value.toString());
-        path.setAttribute('x2', teacherCircle.cx.animVal.value.toString());
-        path.setAttribute('y2', teacherCircle.cy.animVal.value.toString());
-        path.setAttribute('stroke-width', '1');
-        path.setAttribute('stroke', 'red');
+        let line = <SVGLineElement> document.createElementNS(ns, 'line');
 
-        svg.appendChild(path);
+        // Starting position
+        line.setAttribute('x1', studentCircle.cx.animVal.value.toString());
+        line.setAttribute('y1', studentCircle.cy.animVal.value.toString());
+
+        // Ending position
+        line.setAttribute('x2', teacherCircle.cx.animVal.value.toString());
+        line.setAttribute('y2', teacherCircle.cy.animVal.value.toString());
+
+        // Other properties
+
+        svg.insertBefore(line, svg.childNodes[0]);
     });
   });
 

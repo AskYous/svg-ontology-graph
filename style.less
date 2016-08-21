@@ -12,8 +12,17 @@ svg {
   width: 80%;
   border: 1px red solid;
 
-  circle{
-      fill: red;
+  circle {
+    z-index: 1;
+    fill: red;
+    stroke: orange;
+    stroke-width: 3;
+  }
+
+  line {
+    z-index: -1;
+    stroke: blue;
+    stroke-width: 3;
   }
 
   text{
