@@ -68,12 +68,15 @@ class Vertex {
             this.isDragging = true;
           }
 
-          this.circleElement.onmousemove = event => {
-            if(this.isDragging){
-              let x = event.clientX - (2 * this.radius);
-              let y = event.clientY - (2 * this.radius);
-              this.circleElement.setAttribute('cx', x.toString());
-              this.circleElement.setAttribute('cy', y.toString());
+          this.circleElement.onmousemove = () => {
+            document.onmousemove = event => {
+              if(this.isDragging){
+                this.bringToTop();
+                let x = event.clientX - (2 * this.radius);
+                let y = event.clientY - (2 * this.radius);
+                this.circleElement.setAttribute('cx', x.toString());
+                this.circleElement.setAttribute('cy', y.toString());
+              }
             }
           }
 
@@ -91,6 +94,11 @@ class Vertex {
 
         this.displayed = true;
 
+    }
+
+    public bringToTop(): void {
+      this.svg.removeChild(this.svgGroup);
+      this.svg.appendChild(this.svgGroup, svg.childNodes[0]);
     }
 
     public lineTo(otherVertex: Vertex) {
