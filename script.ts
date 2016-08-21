@@ -1,5 +1,5 @@
 let svg = document.getElementsByTagName('svg')[0];
-let ns = 'http://www.w3.org/2000/svg'
+let ns = 'http://www.w3.org/2000/svg';
 
 $.getJSON('sample-data/people.json', people => {
 
@@ -12,8 +12,8 @@ $.getJSON('sample-data/people.json', people => {
 
     // Circle
     let circle = <SVGCircleElement> document.createElementNS(ns, 'circle');
-    circle.setAttribute('cx', (Math.random() * svg.scrollWidth).toString());
-    circle.setAttribute('cy', (Math.random() * svg.scrollHeight).toString());
+    circle.setAttribute('cx', ((Math.random() * (svg.scrollWidth - 60)) + 30).toString());
+    circle.setAttribute('cy', ((Math.random() * (svg.scrollHeight - 60)) + 30).toString());
     circle.setAttribute('r', "30");
     g.appendChild(circle);
 
