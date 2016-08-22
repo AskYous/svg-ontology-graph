@@ -49,9 +49,9 @@ function drawGraph() {
     setEdges();
 
     function setSVGGroups() {
-        people.forEach(person => {
+        graph.vertices.forEach(vertex => {
             let svgGroup = document.createElementNS(ns, 'g');
-            svgGroup.id = `g-${person.id}`;
+            svgGroup.id = `g-${vertex.id}`;
             svg.appendChild(svgGroup);
         });
     }
@@ -126,9 +126,11 @@ function drawGraph() {
     }
 
     function setTexts() {
-        people.forEach(person => {
+        graph.vertices.forEach(vertex => {
 
-            let svgGroup = document.getElementById(`g-${person.id}`);
+            let person = people.filter(person => person.id == vertex.id)[0];
+
+            let svgGroup = document.getElementById(`g-${vertex.id}`);
             let circle = svgGroup.getElementsByTagName('circle')[0];
             let x = circle.getAttribute('cx');
             let y = circle.getAttribute('cy');
