@@ -75,43 +75,50 @@ function drawGraph() {
     svgGroup.appendChild(textElement);
 
     // Drag and drop
-    // {
-    //   let mouseY: number;
-    //   let mouseX: number;
-    //   let onDrag: number;
-    //
-    //   document.onmousemove = event => {
-    //     mouseX = event.clientX;
-    //     mouseY = event.clientY;
-    //   }
-    //
-    //   circleElement.onmousedown = mousedownevent => {
-    //     this.isDragging = true;
-    //   }
-    //
-    //   circleElement.onmousemove = () => {
-    //     document.onmousemove = event => {
-    //       if(this.isDragging){
-    //         this.bringToTop();
-    //         let x = event.clientX - (2 * this.radius);
-    //         let y = event.clientY - (2 * this.radius);
-    //         circleElement.setAttribute('cx', x.toString());
-    //         circleElement.setAttribute('cy', y.toString());
-    //       }
-    //     }
-    //   }
-    //
-    //   circleElement.onmouseup = () => {
-    //     this.isDragging = false;
-    //   }
-    //
-    //   circleElement.onmouseout = () => {
-    //     // this.isDragging = false;
-    //   }
-    // }
+    {
+      let mouseY: number;
+      let mouseX: number;
+      let onDrag: number;
+
+      let isDragging = false;
+
+      document.onmousemove = event => {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+      }
+
+      circleElement.onmousedown = mousedownevent => {
+        isDragging = true;
+      }
+
+      circleElement.onmousemove = () => {
+        document.onmousemove = event => {
+          if(isDragging){
+            // Bring to top
+            svg.removeChild(svgGroup);
+            svg.appendChild(svgGroup);
+
+            let x = event.clientX - (2 * radius);
+            let y = event.clientY - (2 * radius);
+
+            circleElement.setAttribute('cx', x.toString());
+            circleElement.setAttribute('cy', y.toString());
+          }
+        }
+      }
+
+      circleElement.onmouseup = () => {
+        isDragging = false;
+      }
+
+      circleElement.onmouseout = () => {
+        // isDragging = false;
+      }
+    }
 
     // Display it
     svg.appendChild(svgGroup);
+
   });
   }
 
