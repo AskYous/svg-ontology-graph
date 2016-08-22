@@ -7,15 +7,18 @@ class Vertex {
     private ns: string;
     private svg: SVGGElement;
     private displayed: boolean;
+    private parents: Vertex[];
 
     private circleElement: SVGCircleElement;
     private textElement: SVGTextElement;
 
-    constructor(id: number, text: string, svg: SVGGElement) {
-        this._id = id;
-        this.text = text;
-        this.svg = svg;
+    constructor(id: number) {
 
+        // Normal assigning
+        this._id = id;
+        // this.svg = svg;
+
+        // Set initial values
         this.radius = 30;
         this.isDragging = false;
         this.ns = 'http://www.w3.org/2000/svg';
@@ -24,81 +27,9 @@ class Vertex {
 
     }
 
-    /**
-     * Adds the vertex to the SVG Graph
-     */
-    public display(svg: SVGGElement) {
-
-        // Some math
-        let svgPadding = 40;
-        let svgWidth = svg.scrollWidth - (svgPadding * 2);
-        let svgHeight = svg.scrollHeight - (svgPadding * 2);
-        this.radius = svgHeight / 20;
-
-        let x = Math.random() * svgWidth;
-        let y = Math.random() * svgHeight;
-
-        // Circle
-        this.circleElement = SVGCircleElement = document.createElementNS(this.ns, 'circle') as any;
-        this.circleElement.setAttribute('cx', x.toString());
-        this.circleElement.setAttribute('cy', y.toString());
-        this.circleElement.setAttribute('r', this.radius.toString());
-        this.svgGroup.appendChild(this.circleElement);
-
-        // Text
-        this.textElement = document.createElementNS(this.ns, 'text') as any;
-        this.textElement.innerHTML = this.text;
-        this.textElement.setAttribute('text-anchor', 'middle');
-        this.textElement.setAttribute('x', this.circleElement.cx.animVal.value.toString());
-        this.textElement.setAttribute('y', (this.circleElement.cy.animVal.value + this.circleElement.r.animVal.value + 20).toString());
-        this.svgGroup.appendChild(this.textElement);
-
-        // Drag and drop
-        {
-          let mouseY: number;
-          let mouseX: number;
-          let onDrag: number;
-
-          document.onmousemove = event => {
-            mouseX = event.clientX;
-            mouseY = event.clientY;
-          }
-
-          this.circleElement.onmousedown = mousedownevent => {
-            this.isDragging = true;
-          }
-
-          this.circleElement.onmousemove = () => {
-            document.onmousemove = event => {
-              if(this.isDragging){
-                this.bringToTop();
-                let x = event.clientX - (2 * this.radius);
-                let y = event.clientY - (2 * this.radius);
-                this.circleElement.setAttribute('cx', x.toString());
-                this.circleElement.setAttribute('cy', y.toString());
-              }
-            }
-          }
-
-          this.circleElement.onmouseup = () => {
-            this.isDragging = false;
-          }
-
-          this.circleElement.onmouseout = () => {
-            // this.isDragging = false;
-          }
-        }
-
-        // Display it
-        this.svg.appendChild(this.svgGroup);
-
-        this.displayed = true;
-
-    }
-
     public bringToTop(): void {
       this.svg.removeChild(this.svgGroup);
-      this.svg.appendChild(this.svgGroup, svg.childNodes[0]);
+      this.svg.appendChild(this.svgGroup);
     }
 
     public lineTo(otherVertex: Vertex) {

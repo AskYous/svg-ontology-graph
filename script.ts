@@ -1,36 +1,144 @@
 /// <reference path="./declarations/person.d.ts"/>
 
-let svg: SVGGElement = document.getElementsByTagName('svg')[0] as any;
-
 let people: Array<Person>;
 let relations: Array<Array<number>>;
+let graph: DiGraph;
 
 // Get Data
-$.getJSON('sample-data/people.json', peopleResults => {
-    $.getJSON('sample-data/relations.json', relationsResults => {
+$.getJSON('sample-data/people.json', (peopleResults: Person[]) => {
+    $.getJSON('sample-data/relations.json', (relationsResults: Array<Array<number>>) => {
+        let vertices = Array<Vertex>(peopleResults.length);
+        let edges = Array<Edge>(relationsResults.length);
+
+        // Save values
         people = peopleResults;
         relations = relationsResults;
-        begin(); // Go!
+
+        // Convert people to vertices and add them to vertices list
+        people.forEach(person => {
+          vertices.push(new Vertex(person.id));
+        });
+
+        // Convert relations to edges and add them to edges list
+        relations.forEach(relation => {
+          let firstVertex: Vertex = vertices.filter(v => v.id == relation[0])[0];
+          let secondVertex: Vertex = vertices.filter(v => v.id == relation[1])[0];
+          let edge = new Edge(firstVertex, secondVertex);
+
+          edges.push(edge);
+        });
+
+        graph = new DiGraph(vertices, edges);
+        drawGraph();
     });
 });
 
-function begin() {
-  let vertices = new Array<Vertex>();
+function drawGraph() {
+  let ns = 'http://www.w3.org/2000/svg';
+  let svg: SVGGElement = document.getElementsByTagNameNS(ns, 'svg')[0] as any;
 
-  // Display in SVG
-  people.forEach((person, i) => {
-      let vertex = new Vertex(person.id, person.name, svg);
-      vertices.push(vertex);
-      vertex.display(svg);
+  // Some math
+  let svgPadding = 40;
+  let svgWidth = svg.scrollWidth - (svgPadding * 2);
+  let svgHeight = svg.scrollHeight - (svgPadding * 2);
+  let radius = svgHeight / 20;
+
+  setVertices();
+  setEdges();
+
+  function setVertices() {
+    graph.vertices.forEach(vertex => {
+
+    let person = people.filter(p => p.id == vertex.id)[0];
+
+    // Positions
+    let x = Math.random() * svgWidth;
+    let y = Math.random() * svgHeight;
+
+    // Group
+    let svgGroup = document.createElementNS(ns, 'g');
+    svgGroup.id = `g-${vertex.id}`;
+
+    // Circle
+    let circleElement: SVGCircleElement = document.createElementNS(ns, 'circle') as any;
+    circleElement.setAttribute('cx', x.toString());
+    circleElement.setAttribute('cy', y.toString());
+    circleElement.setAttribute('r', radius.toString());
+    svgGroup.appendChild(circleElement);
+
+    // Text
+    let textElement: SVGTextElement = document.createElementNS(ns, 'text') as any;
+    textElement.innerHTML = person.name;
+    textElement.setAttribute('text-anchor', 'middle');
+    textElement.setAttribute('x', x.toString());
+    textElement.setAttribute('y', (y + + radius + 20).toString());
+    svgGroup.appendChild(textElement);
+
+    // Drag and drop
+    // {
+    //   let mouseY: number;
+    //   let mouseX: number;
+    //   let onDrag: number;
+    //
+    //   document.onmousemove = event => {
+    //     mouseX = event.clientX;
+    //     mouseY = event.clientY;
+    //   }
+    //
+    //   circleElement.onmousedown = mousedownevent => {
+    //     this.isDragging = true;
+    //   }
+    //
+    //   circleElement.onmousemove = () => {
+    //     document.onmousemove = event => {
+    //       if(this.isDragging){
+    //         this.bringToTop();
+    //         let x = event.clientX - (2 * this.radius);
+    //         let y = event.clientY - (2 * this.radius);
+    //         circleElement.setAttribute('cx', x.toString());
+    //         circleElement.setAttribute('cy', y.toString());
+    //       }
+    //     }
+    //   }
+    //
+    //   circleElement.onmouseup = () => {
+    //     this.isDragging = false;
+    //   }
+    //
+    //   circleElement.onmouseout = () => {
+    //     // this.isDragging = false;
+    //   }
+    // }
+
+    // Display it
+    svg.appendChild(svgGroup);
   });
+  }
 
-  relations.forEach(relation => {
-      let studentId = <number>relation[0];
-      let teacherId = <number>relation[1];
+  function setEdges(){
+    graph.edges.forEach(edge => {
 
-      let studentVertex = vertices.filter(v => v.id == studentId)[0];
-      let teacherVertex = vertices.filter(v => v.id == teacherId)[0];
+      // The line segment
+      let line = document.createElementNS(ns, 'line');
 
-      studentVertex.lineTo(teacherVertex);
-  });
+      // Vertex SVG Elements
+      let group1 = document.getElementById(`g-${edge.vertex1.id}`) as any;
+      let group2 = document.getElementById(`g-${edge.vertex2.id}`) as any;
+      let circle1 = group1.getElementsByTagName('circle')[0];
+      let circle2 = group2.getElementsByTagName('circle')[0];
+
+      console.assert(circle1 != null);
+
+      // Starting position
+      line.setAttribute('x1', circle1.getAttribute('cx'));
+      line.setAttribute('y1', circle1.getAttribute('cy'));
+
+      // Ending position
+      line.setAttribute('x2', circle2.getAttribute('cx'));
+      line.setAttribute('y2', circle2.getAttribute('cy'));
+
+      svg.insertBefore(line, svg.childNodes[0]);
+    });
+  }
+
 }
