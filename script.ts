@@ -102,8 +102,8 @@ function drawGraph() {
                             svg.removeChild(svgGroup);
                             svg.appendChild(svgGroup);
 
-                            let x = event.clientX - (2 * radius);
-                            let y = event.clientY - (2 * radius);
+                            let x = event.clientX - (1.5 * radius);
+                            let y = event.clientY - (1.5 * radius);
 
                             circleElement.setAttribute('cx', x.toString());
                             circleElement.setAttribute('cy', y.toString());
