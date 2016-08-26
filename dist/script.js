@@ -1,6 +1,8 @@
 var people;
 var relations;
 var graph;
+var isDragging = false;
+var draggingVertexId = null;
 $.getJSON('sample-data/people.json', function (peopleResults) {
     $.getJSON('sample-data/relations.json', function (relationsResults) {
         var vertices = Array(peopleResults.length);
@@ -59,15 +61,20 @@ function drawGraph() {
                 var mouseY;
                 var mouseX;
                 var onDrag;
-                var isDragging = false;
                 document.onmousemove = function (event) {
                     mouseX = event.clientX;
                     mouseY = event.clientY;
                 };
                 circleElement.onmousedown = function (mousedownevent) {
                     isDragging = true;
+                    if (!draggingVertexId) {
+                        draggingVertexId = vertex.id;
+                    }
                 };
                 circleElement.onmousemove = function () {
+                    if (!isDragging || draggingVertexId != vertex.id) {
+                        return;
+                    }
                     document.onmousemove = function (event) {
                         if (isDragging) {
                             svg.removeChild(svgGroup);
@@ -85,6 +92,7 @@ function drawGraph() {
                 };
                 circleElement.onmouseup = function () {
                     isDragging = false;
+                    draggingVertexId = null;
                 };
             }
         });
@@ -94,7 +102,6 @@ function drawGraph() {
             var existingEdge = document.querySelector("#l-" + edge.vertex1.id + "-" + edge.vertex2.id + ", #l-" + edge.vertex2.id + "-" + edge.vertex1.id);
             if (existingEdge)
                 existingEdge.parentNode.removeChild(existingEdge);
-            debugger;
             var line = document.createElementNS(ns, 'line');
             var group1 = document.getElementById("g-" + edge.vertex1.id);
             var group2 = document.getElementById("g-" + edge.vertex2.id);

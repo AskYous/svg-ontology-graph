@@ -4,6 +4,9 @@ let people: Array<Person>;
 let relations: Array<Array<number>>;
 let graph: DiGraph;
 
+let isDragging = false;
+let draggingVertexId = null;
+
 // Get Data
 $.getJSON('sample-data/people.json', (peopleResults: Person[]) => {
     $.getJSON('sample-data/relations.json', (relationsResults: Array<Array<number>>) => {
@@ -87,8 +90,6 @@ function drawGraph() {
                 let mouseX: number;
                 let onDrag: number;
 
-                let isDragging = false;
-
                 // Capture user's mouse location always.
                 document.onmousemove = event => {
                     mouseX = event.clientX;
@@ -98,10 +99,16 @@ function drawGraph() {
                 // Note that dragging has begun
                 circleElement.onmousedown = mousedownevent => {
                     isDragging = true;
+                    if (!draggingVertexId) {
+                      draggingVertexId = vertex.id;
+                    }
                 }
 
-                // Moving
+                // Dragging
                 circleElement.onmousemove = () => {
+                    if(!isDragging || draggingVertexId != vertex.id) {
+                      return;
+                    }
                     document.onmousemove = event => {
                         if (isDragging) {
                             // Bring to top
@@ -130,6 +137,7 @@ function drawGraph() {
                 // Note that dragging has finished.
                 circleElement.onmouseup = () => {
                     isDragging = false;
+                    draggingVertexId = null;
                 }
             }
 
@@ -142,7 +150,7 @@ function drawGraph() {
             // Delete if exists
             let existingEdge = document.querySelector(`#l-${edge.vertex1.id}-${edge.vertex2.id}, #l-${edge.vertex2.id}-${edge.vertex1.id}`);
             if (existingEdge) existingEdge.parentNode.removeChild(existingEdge);
-            debugger;
+
             // The line segment
             let line = document.createElementNS(ns, 'line');
 
