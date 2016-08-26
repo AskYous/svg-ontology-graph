@@ -28,8 +28,7 @@ function drawGraph() {
     var svgHeight = svg.scrollHeight - (svgPadding * 2);
     var radius = svgHeight / 20;
     setSVGGroups();
-    setCircles();
-    drawTexts();
+    drawVertices(graph.vertices);
     drawEdges(graph.edges);
     function setSVGGroups() {
         graph.vertices.forEach(function (vertex) {
@@ -38,8 +37,8 @@ function drawGraph() {
             svg.appendChild(svgGroup);
         });
     }
-    function setCircles() {
-        graph.vertices.forEach(function (vertex) {
+    function drawVertices(vertices) {
+        vertices.forEach(function (vertex) {
             var person = people.filter(function (p) { return p.id == vertex.id; })[0];
             var svgGroup = document.getElementById("g-" + person.id);
             var x = Math.random() * svgWidth;
@@ -50,6 +49,12 @@ function drawGraph() {
             circleElement.setAttribute('r', radius.toString());
             svgGroup.appendChild(circleElement);
             setDrag();
+            var textElement = document.createElementNS(ns, 'text');
+            textElement.innerHTML = person.name;
+            textElement.setAttribute('text-anchor', 'middle');
+            textElement.setAttribute('x', x.toString());
+            textElement.setAttribute('y', (parseInt(y) + radius + 20).toString());
+            svgGroup.appendChild(textElement);
             function setDrag() {
                 var mouseY;
                 var mouseX;
@@ -72,9 +77,7 @@ function drawGraph() {
                             circleElement.setAttribute('cx', x_1.toString());
                             circleElement.setAttribute('cy', y_1.toString());
                             var edges = graph.edges.filter(function (line) { return line.vertex1.id === person.id || line.vertex2.id === person.id; });
-                            clearSVGElements('text');
                             drawEdges(edges);
-                            drawTexts();
                         }
                     };
                 };
@@ -82,21 +85,6 @@ function drawGraph() {
                     isDragging = false;
                 };
             }
-        });
-    }
-    function drawTexts() {
-        graph.vertices.forEach(function (vertex) {
-            var person = people.filter(function (person) { return person.id == vertex.id; })[0];
-            var svgGroup = document.getElementById("g-" + vertex.id);
-            var circle = svgGroup.getElementsByTagName('circle')[0];
-            var x = circle.getAttribute('cx');
-            var y = circle.getAttribute('cy');
-            var textElement = document.createElementNS(ns, 'text');
-            textElement.innerHTML = person.name;
-            textElement.setAttribute('text-anchor', 'middle');
-            textElement.setAttribute('x', x.toString());
-            textElement.setAttribute('y', (parseInt(y) + radius + 20).toString());
-            svgGroup.appendChild(textElement);
         });
     }
     function drawEdges(edges) {
