@@ -170,8 +170,4 @@ function drawGraph() {
         });
     }
 
-    function clearSVGElements(tagName: string) {
-        let elements = Array.prototype.slice.call(svg.getElementsByTagName(tagName));
-        elements.forEach(element => element.parentNode.removeChild(element));
-    }
 }

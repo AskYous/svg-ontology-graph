@@ -110,8 +110,4 @@ function drawGraph() {
             svg.insertBefore(line, svg.childNodes[0]);
         });
     }
-    function clearSVGElements(tagName) {
-        var elements = Array.prototype.slice.call(svg.getElementsByTagName(tagName));
-        elements.forEach(function (element) { return element.parentNode.removeChild(element); });
-    }
 }
