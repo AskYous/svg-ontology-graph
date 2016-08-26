@@ -53,7 +53,7 @@ function drawGraph() {
             textElement.innerHTML = person.name;
             textElement.setAttribute('text-anchor', 'middle');
             textElement.setAttribute('x', x.toString());
-            textElement.setAttribute('y', (parseInt(y) + radius + 20).toString());
+            textElement.setAttribute('y', (y + radius + 20).toString());
             svgGroup.appendChild(textElement);
             function setDrag() {
                 var mouseY;
@@ -78,6 +78,8 @@ function drawGraph() {
                             circleElement.setAttribute('cy', y_1.toString());
                             var edges = graph.edges.filter(function (line) { return line.vertex1.id === person.id || line.vertex2.id === person.id; });
                             drawEdges(edges);
+                            textElement.setAttribute('x', x_1.toString());
+                            textElement.setAttribute('y', (y_1 + radius + 20).toString());
                         }
                     };
                 };

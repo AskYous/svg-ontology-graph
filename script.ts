@@ -44,8 +44,7 @@ function drawGraph() {
     let radius = svgHeight / 20;
 
     setSVGGroups();
-    setCircles();
-    drawTexts();
+    drawVertices(graph.vertices);
     drawEdges(graph.edges);
 
     function setSVGGroups() {
@@ -56,8 +55,8 @@ function drawGraph() {
         });
     }
 
-    function setCircles() {
-        graph.vertices.forEach(vertex => {
+    function drawVertices(vertices: Vertex[]) {
+        vertices.forEach(vertex => {
 
             let person = people.filter(p => p.id == vertex.id)[0];
             let svgGroup = document.getElementById(`g-${person.id}`);
@@ -74,6 +73,13 @@ function drawGraph() {
             svgGroup.appendChild(circleElement);
 
             setDrag();
+
+            let textElement: SVGTextElement = document.createElementNS(ns, 'text') as any;
+            textElement.innerHTML = person.name;
+            textElement.setAttribute('text-anchor', 'middle');
+            textElement.setAttribute('x', x.toString());
+            textElement.setAttribute('y', (y + radius + 20).toString());
+            svgGroup.appendChild(textElement);
 
             // Drag and drop
             function setDrag() {
@@ -110,11 +116,13 @@ function drawGraph() {
                             circleElement.setAttribute('cx', x.toString());
                             circleElement.setAttribute('cy', y.toString());
 
-                            // Redraw elements
+                            // Redraw edges
                             let edges = graph.edges.filter(line => line.vertex1.id === person.id || line.vertex2.id === person.id);
-                            clearSVGElements('text');
                             drawEdges(edges);
-                            drawTexts();
+
+                            // Redraw Text
+                            textElement.setAttribute('x', x.toString());
+                            textElement.setAttribute('y', (y + radius + 20).toString());
                         }
                     }
                 }
@@ -128,33 +136,13 @@ function drawGraph() {
         });
     }
 
-    function drawTexts() {
-        graph.vertices.forEach(vertex => {
-
-            let person = people.filter(person => person.id == vertex.id)[0];
-
-            let svgGroup = document.getElementById(`g-${vertex.id}`);
-            let circle = svgGroup.getElementsByTagName('circle')[0];
-            let x = circle.getAttribute('cx');
-            let y = circle.getAttribute('cy');
-
-            let textElement: SVGTextElement = document.createElementNS(ns, 'text') as any;
-            textElement.innerHTML = person.name;
-            textElement.setAttribute('text-anchor', 'middle');
-            textElement.setAttribute('x', x.toString());
-            textElement.setAttribute('y', (parseInt(y) + radius + 20).toString());
-            svgGroup.appendChild(textElement);
-
-        })
-    }
-
     function drawEdges(edges: Edge[]) {
         edges.forEach(edge => {
 
             // Delete if exists
             let existingEdge = document.querySelector(`#l-${edge.vertex1.id}-${edge.vertex2.id}, #l-${edge.vertex2.id}-${edge.vertex1.id}`);
-            if(existingEdge) existingEdge.parentNode.removeChild(existingEdge);
-debugger;
+            if (existingEdge) existingEdge.parentNode.removeChild(existingEdge);
+            debugger;
             // The line segment
             let line = document.createElementNS(ns, 'line');
 
