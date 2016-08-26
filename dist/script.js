@@ -29,8 +29,8 @@ function drawGraph() {
     var radius = svgHeight / 20;
     setSVGGroups();
     setCircles();
-    setTexts();
-    setEdges();
+    drawTexts();
+    drawEdges(graph.edges);
     function setSVGGroups() {
         graph.vertices.forEach(function (vertex) {
             var svgGroup = document.createElementNS(ns, 'g');
@@ -71,10 +71,10 @@ function drawGraph() {
                             var y_1 = event.clientY - (1.5 * radius);
                             circleElement.setAttribute('cx', x_1.toString());
                             circleElement.setAttribute('cy', y_1.toString());
-                            clearSVGElements('line');
+                            var edges = graph.edges.filter(function (line) { return line.vertex1.id === person.id || line.vertex2.id === person.id; });
                             clearSVGElements('text');
-                            setEdges();
-                            setTexts();
+                            drawEdges(edges);
+                            drawTexts();
                         }
                     };
                 };
@@ -84,7 +84,7 @@ function drawGraph() {
             }
         });
     }
-    function setTexts() {
+    function drawTexts() {
         graph.vertices.forEach(function (vertex) {
             var person = people.filter(function (person) { return person.id == vertex.id; })[0];
             var svgGroup = document.getElementById("g-" + vertex.id);
@@ -99,14 +99,20 @@ function drawGraph() {
             svgGroup.appendChild(textElement);
         });
     }
-    function setEdges() {
-        graph.edges.forEach(function (edge) {
+    function drawEdges(edges) {
+        edges.forEach(function (edge) {
+            var existingEdge = document.querySelector("#l-" + edge.vertex1.id + "-" + edge.vertex2.id + ", #l-" + edge.vertex2.id + "-" + edge.vertex1.id);
+            if (existingEdge)
+                existingEdge.parentNode.removeChild(existingEdge);
+            debugger;
             var line = document.createElementNS(ns, 'line');
             var group1 = document.getElementById("g-" + edge.vertex1.id);
             var group2 = document.getElementById("g-" + edge.vertex2.id);
             var circle1 = group1.getElementsByTagName('circle')[0];
             var circle2 = group2.getElementsByTagName('circle')[0];
-            console.assert(circle1 != null);
+            var id1 = group1.getAttribute('id').split('-')[1];
+            var id2 = group2.getAttribute('id').split('-')[1];
+            line.id = "l-" + id1 + "-" + id2;
             line.setAttribute('x1', circle1.getAttribute('cx'));
             line.setAttribute('y1', circle1.getAttribute('cy'));
             line.setAttribute('x2', circle2.getAttribute('cx'));

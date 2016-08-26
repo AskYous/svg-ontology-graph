@@ -45,8 +45,8 @@ function drawGraph() {
 
     setSVGGroups();
     setCircles();
-    setTexts();
-    setEdges();
+    drawTexts();
+    drawEdges(graph.edges);
 
     function setSVGGroups() {
         graph.vertices.forEach(vertex => {
@@ -102,16 +102,19 @@ function drawGraph() {
                             svg.removeChild(svgGroup);
                             svg.appendChild(svgGroup);
 
+                            // Get mouse location
                             let x = event.clientX - (1.5 * radius);
                             let y = event.clientY - (1.5 * radius);
 
+                            // Move circle to mouse location
                             circleElement.setAttribute('cx', x.toString());
                             circleElement.setAttribute('cy', y.toString());
 
-                            clearSVGElements('line');
+                            // Redraw elements
+                            let edges = graph.edges.filter(line => line.vertex1.id === person.id || line.vertex2.id === person.id);
                             clearSVGElements('text');
-                            setEdges();
-                            setTexts();
+                            drawEdges(edges);
+                            drawTexts();
                         }
                     }
                 }
@@ -125,7 +128,7 @@ function drawGraph() {
         });
     }
 
-    function setTexts() {
+    function drawTexts() {
         graph.vertices.forEach(vertex => {
 
             let person = people.filter(person => person.id == vertex.id)[0];
@@ -145,19 +148,27 @@ function drawGraph() {
         })
     }
 
-    function setEdges() {
-        graph.edges.forEach(edge => {
+    function drawEdges(edges: Edge[]) {
+        edges.forEach(edge => {
 
+            // Delete if exists
+            let existingEdge = document.querySelector(`#l-${edge.vertex1.id}-${edge.vertex2.id}, #l-${edge.vertex2.id}-${edge.vertex1.id}`);
+            if(existingEdge) existingEdge.parentNode.removeChild(existingEdge);
+debugger;
             // The line segment
             let line = document.createElementNS(ns, 'line');
 
             // Vertex SVG Elements
             let group1 = document.getElementById(`g-${edge.vertex1.id}`) as any;
             let group2 = document.getElementById(`g-${edge.vertex2.id}`) as any;
+
             let circle1 = group1.getElementsByTagName('circle')[0];
             let circle2 = group2.getElementsByTagName('circle')[0];
 
-            console.assert(circle1 != null);
+            // Set id
+            let id1 = group1.getAttribute('id').split('-')[1];
+            let id2 = group2.getAttribute('id').split('-')[1];
+            line.id = `l-${id1}-${id2}`;
 
             // Starting position
             line.setAttribute('x1', circle1.getAttribute('cx'));
