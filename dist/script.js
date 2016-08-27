@@ -117,4 +117,16 @@ function drawGraph() {
             svg.insertBefore(line, svg.childNodes[0]);
         });
     }
+    function getVertexFrequencyCount() {
+        var vCounts = Array();
+        graph.edges.forEach(function (edge) {
+            if (!vCounts[edge.vertex1.id])
+                vCounts[edge.vertex1.id] = 0;
+            if (!vCounts[edge.vertex2.id])
+                vCounts[edge.vertex2.id] = 0;
+            vCounts[edge.vertex1.id]++;
+            vCounts[edge.vertex2.id]++;
+        });
+        return vCounts;
+    }
 }

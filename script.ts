@@ -178,4 +178,23 @@ function drawGraph() {
         });
     }
 
+    /**
+     * Returns an array of Vertex ID's mapped to the the amount of times a line starts or ends to them.
+     */
+    function getVertexFrequencyCount(){
+      let vCounts = Array<number>();
+
+      graph.edges.forEach(edge => {
+        // Initialize to zero
+        if (!vCounts[edge.vertex1.id]) vCounts[edge.vertex1.id] = 0;
+        if (!vCounts[edge.vertex2.id]) vCounts[edge.vertex2.id] = 0;
+
+        // Increase vertex count
+        vCounts[edge.vertex1.id]++;
+        vCounts[edge.vertex2.id]++;
+      });
+
+      return vCounts;
+    }
+
 }
