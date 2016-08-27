@@ -29,6 +29,12 @@ function drawGraph() {
     var svgWidth = svg.scrollWidth - (svgPadding * 2);
     var svgHeight = svg.scrollHeight - (svgPadding * 2);
     var radius = svgHeight / 20;
+    var mouseY;
+    var mouseX;
+    document.onmousemove = function (event) {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+    };
     setSVGGroups();
     drawVertices(graph.vertices);
     drawEdges(graph.edges);
@@ -40,7 +46,12 @@ function drawGraph() {
         });
     }
     function drawVertices(vertices) {
-        vertices.forEach(function (vertex) {
+        var vCountSorted = getVertexFrequencyCount().sort(function (a, b) {
+            return b[1] - a[1];
+        });
+        vCountSorted.forEach(function (vCount) {
+            var index = vCount[0];
+            var vertex = graph.vertices.filter(function (v) { return v.id == vCount[0]; })[0];
             var person = people.filter(function (p) { return p.id == vertex.id; })[0];
             var svgGroup = document.getElementById("g-" + person.id);
             var x = Math.random() * svgWidth;
@@ -58,13 +69,7 @@ function drawGraph() {
             textElement.setAttribute('y', (y + radius + 20).toString());
             svgGroup.appendChild(textElement);
             function setDrag() {
-                var mouseY;
-                var mouseX;
                 var onDrag;
-                document.onmousemove = function (event) {
-                    mouseX = event.clientX;
-                    mouseY = event.clientY;
-                };
                 circleElement.onmousedown = function (mousedownevent) {
                     isDragging = true;
                     if (!draggingVertexId) {
@@ -127,6 +132,6 @@ function drawGraph() {
             vCounts[edge.vertex1.id]++;
             vCounts[edge.vertex2.id]++;
         });
-        return vCounts;
+        return vCounts.map(function (count, i) { return [i, count]; });
     }
 }

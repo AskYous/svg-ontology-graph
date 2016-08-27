@@ -46,6 +46,15 @@ function drawGraph() {
     let svgHeight = svg.scrollHeight - (svgPadding * 2);
     let radius = svgHeight / 20;
 
+    let mouseY: number;
+    let mouseX: number;
+
+    // Capture user's mouse location always.
+    document.onmousemove = event => {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+    }
+
     setSVGGroups();
     drawVertices(graph.vertices);
     drawEdges(graph.edges);
@@ -59,17 +68,27 @@ function drawGraph() {
     }
 
     function drawVertices(vertices: Vertex[]) {
-        vertices.forEach(vertex => {
 
-            let person = people.filter(p => p.id == vertex.id)[0];
-            let svgGroup = document.getElementById(`g-${person.id}`);
+        // Get vertices ordered by their line end frequency count.
+        // Highest vertex is at i = 0 of the array;
+        let vCountSorted = getVertexFrequencyCount().sort((a, b) => {
+            return b[1] - a[1];
+        });
+
+        vCountSorted.forEach(vCount => {
+
+            // Initialize variables
+            const index = vCount[0];
+            const vertex = graph.vertices.filter(v => v.id == vCount[0])[0];
+            const person = people.filter(p => p.id == vertex.id)[0];
+            const svgGroup = document.getElementById(`g-${person.id}`);
 
             // Positions
-            let x = Math.random() * svgWidth;
-            let y = Math.random() * svgHeight;
+            const x = Math.random() * svgWidth;
+            const y = Math.random() * svgHeight;
 
             // Circle
-            let circleElement: SVGCircleElement = document.createElementNS(ns, 'circle') as any;
+            const circleElement: SVGCircleElement = document.createElementNS(ns, 'circle') as any;
             circleElement.setAttribute('cx', x.toString());
             circleElement.setAttribute('cy', y.toString());
             circleElement.setAttribute('r', radius.toString());
@@ -77,7 +96,7 @@ function drawGraph() {
 
             setDrag();
 
-            let textElement: SVGTextElement = document.createElementNS(ns, 'text') as any;
+            const textElement: SVGTextElement = document.createElementNS(ns, 'text') as any;
             textElement.innerHTML = person.name;
             textElement.setAttribute('text-anchor', 'middle');
             textElement.setAttribute('x', x.toString());
@@ -86,28 +105,20 @@ function drawGraph() {
 
             // Drag and drop
             function setDrag() {
-                let mouseY: number;
-                let mouseX: number;
                 let onDrag: number;
-
-                // Capture user's mouse location always.
-                document.onmousemove = event => {
-                    mouseX = event.clientX;
-                    mouseY = event.clientY;
-                }
 
                 // Note that dragging has begun
                 circleElement.onmousedown = mousedownevent => {
                     isDragging = true;
                     if (!draggingVertexId) {
-                      draggingVertexId = vertex.id;
+                        draggingVertexId = vertex.id;
                     }
                 }
 
                 // Dragging
                 circleElement.onmousemove = () => {
-                    if(!isDragging || draggingVertexId != vertex.id) {
-                      return;
+                    if (!isDragging || draggingVertexId != vertex.id) {
+                        return;
                     }
                     document.onmousemove = event => {
                         if (isDragging) {
@@ -181,20 +192,20 @@ function drawGraph() {
     /**
      * Returns an array of Vertex ID's mapped to the the amount of times a line starts or ends to them.
      */
-    function getVertexFrequencyCount(){
-      let vCounts = Array<number>();
+    function getVertexFrequencyCount() {
+        let vCounts = Array<number>();
 
-      graph.edges.forEach(edge => {
-        // Initialize to zero
-        if (!vCounts[edge.vertex1.id]) vCounts[edge.vertex1.id] = 0;
-        if (!vCounts[edge.vertex2.id]) vCounts[edge.vertex2.id] = 0;
+        graph.edges.forEach(edge => {
+            // Initialize to zero
+            if (!vCounts[edge.vertex1.id]) vCounts[edge.vertex1.id] = 0;
+            if (!vCounts[edge.vertex2.id]) vCounts[edge.vertex2.id] = 0;
 
-        // Increase vertex count
-        vCounts[edge.vertex1.id]++;
-        vCounts[edge.vertex2.id]++;
-      });
+            // Increase vertex count
+            vCounts[edge.vertex1.id]++;
+            vCounts[edge.vertex2.id]++;
+        });
 
-      return vCounts;
+        return vCounts.map((count, i) => [i, count]);
     }
 
 }
