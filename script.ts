@@ -7,8 +7,8 @@ let graph: DiGraph;
 let isDragging = false;
 let draggingVertexId = null;
 
-const peopleUri = 'sample-data/large-data/people.json';
-const relationsUri = 'sample-data/large-data/relations.json';
+const peopleUri = 'sample-data/small-data/people.json';
+const relationsUri = 'sample-data/small-data/relations.json';
 
 const rectPadding = 15;
 
