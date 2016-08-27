@@ -10,16 +10,18 @@ html, body{
 }
 
 svg {
-  height: 80%;
-  width: 92%;
-  padding: 50px;
+  height: 100%;
+  width: 100%;
+  // padding: 50px;
 
-  circle {
+  rect {
     z-index: 1;
     fill: red;
     stroke: orange;
-    stroke-width: 3;
+    stroke-width: 2;
     cursor: move;
+    rx: 5px;
+    ry: 5px;
   }
 
   line {
@@ -30,6 +32,7 @@ svg {
 
   text {
     fill: white;
+    cursor: move;
 
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none;   /* Chrome/Safari/Opera */

@@ -5,6 +5,7 @@ var isDragging = false;
 var draggingVertexId = null;
 var peopleUri = 'sample-data/large-data/people.json';
 var relationsUri = 'sample-data/large-data/relations.json';
+var rectPadding = 15;
 $.getJSON(peopleUri, function (peopleResults) {
     $.getJSON(relationsUri, function (relationsResults) {
         var vertices = Array(peopleResults.length);
@@ -58,27 +59,28 @@ function drawGraph() {
             var svgGroup = document.getElementById("g-" + person.id);
             var x = Math.random() * svgWidth;
             var y = Math.random() * svgHeight;
-            var circleElement = document.createElementNS(ns, 'circle');
-            circleElement.setAttribute('cx', x.toString());
-            circleElement.setAttribute('cy', y.toString());
-            circleElement.setAttribute('r', radius.toString());
-            svgGroup.appendChild(circleElement);
-            setDrag();
             var textElement = document.createElementNS(ns, 'text');
             textElement.innerHTML = person.name;
-            textElement.setAttribute('text-anchor', 'middle');
-            textElement.setAttribute('x', x.toString());
-            textElement.setAttribute('y', (y + radius + 20).toString());
+            textElement.setAttribute('x', String(x));
+            textElement.setAttribute('y', String(y));
+            textElement.setAttribute('dominant-baseline', 'text-before-edge');
             svgGroup.appendChild(textElement);
+            var rectElement = document.createElementNS(ns, 'rect');
+            rectElement.setAttribute('x', String(x - (rectPadding / 2)));
+            rectElement.setAttribute('y', String(y - (rectPadding / 2)));
+            rectElement.setAttribute('width', String(textElement.getBoundingClientRect().width + rectPadding));
+            rectElement.setAttribute('height', String(textElement.getBoundingClientRect().height + rectPadding));
+            svgGroup.insertBefore(rectElement, textElement);
+            setDrag();
             function setDrag() {
                 var onDrag;
-                circleElement.onmousedown = function (mousedownevent) {
+                var onmousedown = function () {
                     isDragging = true;
                     if (!draggingVertexId) {
                         draggingVertexId = vertex.id;
                     }
                 };
-                circleElement.onmousemove = function () {
+                var onmousemove = function () {
                     if (!isDragging || draggingVertexId != vertex.id) {
                         return;
                     }
@@ -86,21 +88,27 @@ function drawGraph() {
                         if (isDragging) {
                             svg.removeChild(svgGroup);
                             svg.appendChild(svgGroup);
-                            var x_1 = event.clientX - (1.5 * radius);
-                            var y_1 = event.clientY - (1.5 * radius);
-                            circleElement.setAttribute('cx', x_1.toString());
-                            circleElement.setAttribute('cy', y_1.toString());
+                            var x_1 = event.clientX - (rectElement.getBoundingClientRect().width / 2);
+                            var y_1 = event.clientY - (rectElement.getBoundingClientRect().height / 2);
+                            rectElement.setAttribute('x', String(x_1));
+                            rectElement.setAttribute('y', String(y_1));
                             var edges = graph.edges.filter(function (line) { return line.vertex1.id === person.id || line.vertex2.id === person.id; });
                             drawEdges(edges);
-                            textElement.setAttribute('x', x_1.toString());
-                            textElement.setAttribute('y', (y_1 + radius + 20).toString());
+                            textElement.setAttribute('x', String(x_1 + rectPadding / 2));
+                            textElement.setAttribute('y', String(y_1 + rectPadding / 2));
                         }
                     };
                 };
-                circleElement.onmouseup = function () {
+                function onmouseup(a, b) {
                     isDragging = false;
                     draggingVertexId = null;
-                };
+                }
+                rectElement.onmousedown = onmousedown;
+                textElement.onmousedown = onmousedown;
+                rectElement.onmousemove = onmousemove;
+                textElement.onmousemove = onmousemove;
+                rectElement.onmouseup = onmouseup;
+                textElement.onmouseup = onmouseup;
             }
         });
     }
@@ -112,15 +120,15 @@ function drawGraph() {
             var line = document.createElementNS(ns, 'line');
             var group1 = document.getElementById("g-" + edge.vertex1.id);
             var group2 = document.getElementById("g-" + edge.vertex2.id);
-            var circle1 = group1.getElementsByTagName('circle')[0];
-            var circle2 = group2.getElementsByTagName('circle')[0];
+            var circle1 = group1.getElementsByTagName('rect')[0];
+            var circle2 = group2.getElementsByTagName('rect')[0];
             var id1 = group1.getAttribute('id').split('-')[1];
             var id2 = group2.getAttribute('id').split('-')[1];
             line.id = "l-" + id1 + "-" + id2;
-            line.setAttribute('x1', circle1.getAttribute('cx'));
-            line.setAttribute('y1', circle1.getAttribute('cy'));
-            line.setAttribute('x2', circle2.getAttribute('cx'));
-            line.setAttribute('y2', circle2.getAttribute('cy'));
+            line.setAttribute('x1', String(Number(circle1.getAttribute('x')) + (Number(circle1.getAttribute('width')) / 2)));
+            line.setAttribute('y1', String(Number(circle1.getAttribute('y')) + (Number(circle1.getAttribute('height')) / 2)));
+            line.setAttribute('x2', String(Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2)));
+            line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
             svg.insertBefore(line, svg.childNodes[0]);
         });
     }

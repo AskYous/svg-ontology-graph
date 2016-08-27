@@ -7,11 +7,16 @@ let graph: DiGraph;
 let isDragging = false;
 let draggingVertexId = null;
 
+const peopleUri = 'sample-data/large-data/people.json';
+const relationsUri = 'sample-data/large-data/relations.json';
+
+const rectPadding = 15;
+
 // Get Data
-$.getJSON('sample-data/people.json', (peopleResults: Person[]) => {
-    $.getJSON('sample-data/relations.json', (relationsResults: Array<Array<number>>) => {
-        let vertices = Array<Vertex>(peopleResults.length);
-        let edges = Array<Edge>(relationsResults.length);
+$.getJSON(peopleUri, (peopleResults: Person[]) => {
+    $.getJSON(relationsUri, (relationsResults: Array<Array<number>>) => {
+        const vertices = Array<Vertex>(peopleResults.length);
+        const edges = Array<Edge>(relationsResults.length);
 
         // Save values
         people = peopleResults;
@@ -24,9 +29,9 @@ $.getJSON('sample-data/people.json', (peopleResults: Person[]) => {
 
         // Convert relations to edges and add them to edges list
         relations.forEach(relation => {
-            let firstVertex: Vertex = vertices.filter(v => v.id == relation[0])[0];
-            let secondVertex: Vertex = vertices.filter(v => v.id == relation[1])[0];
-            let edge = new Edge(firstVertex, secondVertex);
+            const firstVertex: Vertex = vertices.filter(v => v.id == relation[0])[0];
+            const secondVertex: Vertex = vertices.filter(v => v.id == relation[1])[0];
+            const edge = new Edge(firstVertex, secondVertex);
 
             edges.push(edge);
         });
@@ -37,14 +42,14 @@ $.getJSON('sample-data/people.json', (peopleResults: Person[]) => {
 });
 
 function drawGraph() {
-    let ns = 'http://www.w3.org/2000/svg';
-    let svg: SVGGElement = document.getElementsByTagNameNS(ns, 'svg')[0] as any;
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg: SVGGElement = document.getElementsByTagNameNS(ns, 'svg')[0] as any;
 
     // Some math
-    let svgPadding = 40;
-    let svgWidth = svg.scrollWidth - (svgPadding * 2);
-    let svgHeight = svg.scrollHeight - (svgPadding * 2);
-    let radius = svgHeight / 20;
+    const svgPadding = 40;
+    const svgWidth = svg.scrollWidth - (svgPadding * 2);
+    const svgHeight = svg.scrollHeight - (svgPadding * 2);
+    const radius = svgHeight / 20;
 
     let mouseY: number;
     let mouseX: number;
@@ -61,7 +66,7 @@ function drawGraph() {
 
     function setSVGGroups() {
         graph.vertices.forEach(vertex => {
-            let svgGroup = document.createElementNS(ns, 'g');
+            const svgGroup = document.createElementNS(ns, 'g');
             svgGroup.id = `g-${vertex.id}`;
             svg.appendChild(svgGroup);
         });
@@ -71,7 +76,7 @@ function drawGraph() {
 
         // Get vertices ordered by their line end frequency count.
         // Highest vertex is at i = 0 of the array;
-        let vCountSorted = getVertexFrequencyCount().sort((a, b) => {
+        const vCountSorted = getVertexFrequencyCount().sort((a, b) => {
             return b[1] - a[1];
         });
 
@@ -87,36 +92,35 @@ function drawGraph() {
             const x = Math.random() * svgWidth;
             const y = Math.random() * svgHeight;
 
+            const textElement = <HTMLElement> document.createElementNS(ns, 'text');
+            textElement.innerHTML = person.name;
+            textElement.setAttribute('x', String(x));
+            textElement.setAttribute('y', String(y));
+            textElement.setAttribute('dominant-baseline', 'text-before-edge');
+            svgGroup.appendChild(textElement);
+
             // Circle
-            const circleElement: SVGCircleElement = document.createElementNS(ns, 'circle') as any;
-            circleElement.setAttribute('cx', x.toString());
-            circleElement.setAttribute('cy', y.toString());
-            circleElement.setAttribute('r', radius.toString());
-            svgGroup.appendChild(circleElement);
+            const rectElement = <HTMLElement> document.createElementNS(ns, 'rect');
+            rectElement.setAttribute('x', String(x - (rectPadding / 2)));
+            rectElement.setAttribute('y', String(y - (rectPadding / 2)));
+            rectElement.setAttribute('width', String(textElement.getBoundingClientRect().width + rectPadding));
+            rectElement.setAttribute('height', String(textElement.getBoundingClientRect().height + rectPadding));
+
+            svgGroup.insertBefore(rectElement, textElement);
 
             setDrag();
-
-            const textElement: SVGTextElement = document.createElementNS(ns, 'text') as any;
-            textElement.innerHTML = person.name;
-            textElement.setAttribute('text-anchor', 'middle');
-            textElement.setAttribute('x', x.toString());
-            textElement.setAttribute('y', (y + radius + 20).toString());
-            svgGroup.appendChild(textElement);
 
             // Drag and drop
             function setDrag() {
                 let onDrag: number;
 
-                // Note that dragging has begun
-                circleElement.onmousedown = mousedownevent => {
+                const onmousedown = () => {
                     isDragging = true;
                     if (!draggingVertexId) {
                         draggingVertexId = vertex.id;
                     }
                 }
-
-                // Dragging
-                circleElement.onmousemove = () => {
+                const onmousemove = () => {
                     if (!isDragging || draggingVertexId != vertex.id) {
                         return;
                     }
@@ -127,31 +131,41 @@ function drawGraph() {
                             svg.appendChild(svgGroup);
 
                             // Get mouse location
-                            let x = event.clientX - (1.5 * radius);
-                            let y = event.clientY - (1.5 * radius);
+                            let x = event.clientX - (rectElement.getBoundingClientRect().width / 2);
+                            let y = event.clientY - (rectElement.getBoundingClientRect().height / 2);
 
                             // Move circle to mouse location
-                            circleElement.setAttribute('cx', x.toString());
-                            circleElement.setAttribute('cy', y.toString());
+                            rectElement.setAttribute('x', String(x));
+                            rectElement.setAttribute('y', String(y));
 
                             // Redraw edges
                             let edges = graph.edges.filter(line => line.vertex1.id === person.id || line.vertex2.id === person.id);
                             drawEdges(edges);
 
                             // Redraw Text
-                            textElement.setAttribute('x', x.toString());
-                            textElement.setAttribute('y', (y + radius + 20).toString());
+                            textElement.setAttribute('x', String(x + rectPadding / 2));
+                            textElement.setAttribute('y', String(y + rectPadding / 2));
                         }
                     }
                 }
-
-                // Note that dragging has finished.
-                circleElement.onmouseup = () => {
+                function onmouseup(a, b) {
                     isDragging = false;
                     draggingVertexId = null;
                 }
-            }
 
+                // Note that dragging has begun
+                rectElement.onmousedown = onmousedown;
+                textElement.onmousedown = onmousedown;
+
+                // Dragging
+                rectElement.onmousemove = onmousemove;
+                textElement.onmousemove = onmousemove;
+
+                // Note that dragging has finished.
+                rectElement.onmouseup = onmouseup as any;
+                textElement.onmouseup = onmouseup as any;
+
+              }
         });
     }
 
@@ -169,8 +183,8 @@ function drawGraph() {
             let group1 = document.getElementById(`g-${edge.vertex1.id}`) as any;
             let group2 = document.getElementById(`g-${edge.vertex2.id}`) as any;
 
-            let circle1 = group1.getElementsByTagName('circle')[0];
-            let circle2 = group2.getElementsByTagName('circle')[0];
+            let circle1 = group1.getElementsByTagName('rect')[0];
+            let circle2 = group2.getElementsByTagName('rect')[0];
 
             // Set id
             let id1 = group1.getAttribute('id').split('-')[1];
@@ -178,13 +192,14 @@ function drawGraph() {
             line.id = `l-${id1}-${id2}`;
 
             // Starting position
-            line.setAttribute('x1', circle1.getAttribute('cx'));
-            line.setAttribute('y1', circle1.getAttribute('cy'));
+            line.setAttribute('x1', String(Number(circle1.getAttribute('x')) + (Number(circle1.getAttribute('width')) / 2)));
+            line.setAttribute('y1', String(Number(circle1.getAttribute('y')) + (Number(circle1.getAttribute('height')) / 2)));
 
             // Ending position
-            line.setAttribute('x2', circle2.getAttribute('cx'));
-            line.setAttribute('y2', circle2.getAttribute('cy'));
+            line.setAttribute('x2', String(Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2)));
+            line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
 
+            // Add on top
             svg.insertBefore(line, svg.childNodes[0]);
         });
     }
