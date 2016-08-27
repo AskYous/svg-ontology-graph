@@ -3,8 +3,10 @@ var relations;
 var graph;
 var isDragging = false;
 var draggingVertexId = null;
-$.getJSON('sample-data/people.json', function (peopleResults) {
-    $.getJSON('sample-data/relations.json', function (relationsResults) {
+var peopleUri = 'sample-data/large-data/people.json';
+var relationsUri = 'sample-data/large-data/relations.json';
+$.getJSON(peopleUri, function (peopleResults) {
+    $.getJSON(relationsUri, function (relationsResults) {
         var vertices = Array(peopleResults.length);
         var edges = Array(relationsResults.length);
         people = peopleResults;
