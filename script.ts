@@ -92,7 +92,7 @@ function drawGraph() {
             const x = Math.random() * svgWidth;
             const y = Math.random() * svgHeight;
 
-            const textElement = <HTMLElement> document.createElementNS(ns, 'text');
+            const textElement = <HTMLElement>document.createElementNS(ns, 'text');
             textElement.innerHTML = person.name;
             textElement.setAttribute('x', String(x));
             textElement.setAttribute('y', String(y));
@@ -100,7 +100,7 @@ function drawGraph() {
             svgGroup.appendChild(textElement);
 
             // Circle
-            const rectElement = <HTMLElement> document.createElementNS(ns, 'rect');
+            const rectElement = <HTMLElement>document.createElementNS(ns, 'rect');
             rectElement.setAttribute('x', String(x - (rectPadding / 2)));
             rectElement.setAttribute('y', String(y - (rectPadding / 2)));
             rectElement.setAttribute('width', String(textElement.getBoundingClientRect().width + rectPadding));
@@ -109,6 +109,42 @@ function drawGraph() {
             svgGroup.insertBefore(rectElement, textElement);
 
             setDrag();
+
+            function activateVertex() {
+                svgGroup.classList.add('active');
+
+                // Activate edges
+                getAdjacentEdges().forEach(edge => {
+                    let line = document.getElementById(`l-${edge.vertex1.id}-${edge.vertex2.id}`);
+                    line.classList.add('active');
+
+                    let g1 = document.getElementById(`g-${edge.vertex1.id}`);
+                    let g2 = document.getElementById(`g-${edge.vertex2.id}`);
+
+                    g1.classList.add('active');
+                    g2.classList.add('active');
+                });
+            }
+
+            function deactivateVertex() {
+                svgGroup.classList.remove('active');
+
+                // Dectivate edges
+                getAdjacentEdges().forEach(edge => {
+                    let line = document.getElementById(`l-${edge.vertex1.id}-${edge.vertex2.id}`);
+                    line.classList.remove('active');
+
+                    let g1 = document.getElementById(`g-${edge.vertex1.id}`);
+                    let g2 = document.getElementById(`g-${edge.vertex2.id}`);
+
+                    g1.classList.remove('active');
+                    g2.classList.remove('active');
+                });
+            }
+
+            function getAdjacentEdges() {
+                return graph.edges.filter(e => e.vertex1.id == vertex.id || e.vertex2.id == vertex.id);
+            }
 
             // Drag and drop
             function setDrag() {
@@ -119,6 +155,7 @@ function drawGraph() {
                     if (!draggingVertexId) {
                         draggingVertexId = vertex.id;
                     }
+                    activateVertex();
                 }
                 const onmousemove = () => {
                     if (!isDragging || draggingVertexId != vertex.id) {
@@ -139,7 +176,7 @@ function drawGraph() {
                             rectElement.setAttribute('y', String(y));
 
                             // Redraw edges
-                            let edges = graph.edges.filter(line => line.vertex1.id === person.id || line.vertex2.id === person.id);
+                            let edges = getAdjacentEdges();
                             drawEdges(edges);
 
                             // Redraw Text
@@ -151,6 +188,7 @@ function drawGraph() {
                 function onmouseup(a, b) {
                     isDragging = false;
                     draggingVertexId = null;
+                    deactivateVertex();
                 }
 
                 // Note that dragging has begun
@@ -165,19 +203,24 @@ function drawGraph() {
                 rectElement.onmouseup = onmouseup as any;
                 textElement.onmouseup = onmouseup as any;
 
-              }
+            }
         });
     }
 
     function drawEdges(edges: Edge[]) {
         edges.forEach(edge => {
 
+            let makeActive = false;
+
             // Delete if exists
             let existingEdge = document.querySelector(`#l-${edge.vertex1.id}-${edge.vertex2.id}, #l-${edge.vertex2.id}-${edge.vertex1.id}`);
-            if (existingEdge) existingEdge.parentNode.removeChild(existingEdge);
+            if (existingEdge) {
+                if (existingEdge.classList.contains('active')) makeActive = true;
+                existingEdge.parentNode.removeChild(existingEdge);
+            }
 
             // The line segment
-            let line = document.createElementNS(ns, 'line');
+            let line = <HTMLElement>document.createElementNS(ns, 'line');
 
             // Vertex SVG Elements
             let group1 = document.getElementById(`g-${edge.vertex1.id}`) as any;
@@ -198,6 +241,9 @@ function drawGraph() {
             // Ending position
             line.setAttribute('x2', String(Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2)));
             line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
+
+            // Mak active if necessary.
+            if (makeActive) line.classList.add('active');
 
             // Add on top
             svg.insertBefore(line, svg.childNodes[0]);

@@ -72,6 +72,31 @@ function drawGraph() {
             rectElement.setAttribute('height', String(textElement.getBoundingClientRect().height + rectPadding));
             svgGroup.insertBefore(rectElement, textElement);
             setDrag();
+            function activateVertex() {
+                svgGroup.classList.add('active');
+                getAdjacentEdges().forEach(function (edge) {
+                    var line = document.getElementById("l-" + edge.vertex1.id + "-" + edge.vertex2.id);
+                    line.classList.add('active');
+                    var g1 = document.getElementById("g-" + edge.vertex1.id);
+                    var g2 = document.getElementById("g-" + edge.vertex2.id);
+                    g1.classList.add('active');
+                    g2.classList.add('active');
+                });
+            }
+            function deactivateVertex() {
+                svgGroup.classList.remove('active');
+                getAdjacentEdges().forEach(function (edge) {
+                    var line = document.getElementById("l-" + edge.vertex1.id + "-" + edge.vertex2.id);
+                    line.classList.remove('active');
+                    var g1 = document.getElementById("g-" + edge.vertex1.id);
+                    var g2 = document.getElementById("g-" + edge.vertex2.id);
+                    g1.classList.remove('active');
+                    g2.classList.remove('active');
+                });
+            }
+            function getAdjacentEdges() {
+                return graph.edges.filter(function (e) { return e.vertex1.id == vertex.id || e.vertex2.id == vertex.id; });
+            }
             function setDrag() {
                 var onDrag;
                 var onmousedown = function () {
@@ -79,6 +104,7 @@ function drawGraph() {
                     if (!draggingVertexId) {
                         draggingVertexId = vertex.id;
                     }
+                    activateVertex();
                 };
                 var onmousemove = function () {
                     if (!isDragging || draggingVertexId != vertex.id) {
@@ -92,7 +118,7 @@ function drawGraph() {
                             var y_1 = event.clientY - (rectElement.getBoundingClientRect().height / 2);
                             rectElement.setAttribute('x', String(x_1));
                             rectElement.setAttribute('y', String(y_1));
-                            var edges = graph.edges.filter(function (line) { return line.vertex1.id === person.id || line.vertex2.id === person.id; });
+                            var edges = getAdjacentEdges();
                             drawEdges(edges);
                             textElement.setAttribute('x', String(x_1 + rectPadding / 2));
                             textElement.setAttribute('y', String(y_1 + rectPadding / 2));
@@ -102,6 +128,7 @@ function drawGraph() {
                 function onmouseup(a, b) {
                     isDragging = false;
                     draggingVertexId = null;
+                    deactivateVertex();
                 }
                 rectElement.onmousedown = onmousedown;
                 textElement.onmousedown = onmousedown;
@@ -114,9 +141,13 @@ function drawGraph() {
     }
     function drawEdges(edges) {
         edges.forEach(function (edge) {
+            var makeActive = false;
             var existingEdge = document.querySelector("#l-" + edge.vertex1.id + "-" + edge.vertex2.id + ", #l-" + edge.vertex2.id + "-" + edge.vertex1.id);
-            if (existingEdge)
+            if (existingEdge) {
+                if (existingEdge.classList.contains('active'))
+                    makeActive = true;
                 existingEdge.parentNode.removeChild(existingEdge);
+            }
             var line = document.createElementNS(ns, 'line');
             var group1 = document.getElementById("g-" + edge.vertex1.id);
             var group2 = document.getElementById("g-" + edge.vertex2.id);
@@ -129,6 +160,8 @@ function drawGraph() {
             line.setAttribute('y1', String(Number(circle1.getAttribute('y')) + (Number(circle1.getAttribute('height')) / 2)));
             line.setAttribute('x2', String(Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2)));
             line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
+            if (makeActive)
+                line.classList.add('active');
             svg.insertBefore(line, svg.childNodes[0]);
         });
     }

@@ -14,6 +14,10 @@ svg {
   width: 100%;
   // padding: 50px;
 
+  g.active rect {
+    stroke: blue;
+  }
+
   rect {
     z-index: 1;
     fill: red;
@@ -28,6 +32,9 @@ svg {
     z-index: -1;
     stroke: orange;
     stroke-width: 3;
+  }
+  line.active{
+    stroke: blue;
   }
 
   text {
