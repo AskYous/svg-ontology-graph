@@ -80,11 +80,9 @@ function drawGraph() {
             return b[1] - a[1];
         });
 
-        vCountSorted.forEach(vCount => {
+        graph.vertices.forEach(vertex => {
 
             // Initialize variables
-            const index = vCount[0];
-            const vertex = graph.vertices.filter(v => v.id == vCount[0])[0];
             const person = people.filter(p => p.id == vertex.id)[0];
             const svgGroup = document.getElementById(`g-${person.id}`);
 
@@ -116,6 +114,7 @@ function drawGraph() {
                 // Activate edges
                 getAdjacentEdges().forEach(edge => {
                     let line = document.getElementById(`l-${edge.vertex1.id}-${edge.vertex2.id}`);
+                    if(!line) line = document.getElementById(`l-${edge.vertex2.id}-${edge.vertex1.id}`);
                     line.classList.add('active');
 
                     let g1 = document.getElementById(`g-${edge.vertex1.id}`);
@@ -123,6 +122,10 @@ function drawGraph() {
 
                     g1.classList.add('active');
                     g2.classList.add('active');
+
+                    bringElementToTop(line);
+                    bringElementToTop(g1);
+                    bringElementToTop(g2);
                 });
             }
 
@@ -132,6 +135,7 @@ function drawGraph() {
                 // Dectivate edges
                 getAdjacentEdges().forEach(edge => {
                     let line = document.getElementById(`l-${edge.vertex1.id}-${edge.vertex2.id}`);
+                    if(!line) line = document.getElementById(`l-${edge.vertex2.id}-${edge.vertex1.id}`);
                     line.classList.remove('active');
 
                     let g1 = document.getElementById(`g-${edge.vertex1.id}`);
@@ -185,7 +189,7 @@ function drawGraph() {
                         }
                     }
                 }
-                function onmouseup(a, b) {
+                const onmouseup = (a, b) => {
                     isDragging = false;
                     draggingVertexId = null;
                     deactivateVertex();
@@ -246,7 +250,8 @@ function drawGraph() {
             if (makeActive) line.classList.add('active');
 
             // Add on top
-            svg.insertBefore(line, svg.childNodes[0]);
+            let lastLineIndex = svg.getElementsByTagName('line').length - 1;
+            svg.insertBefore(line, svg.childNodes[lastLineIndex]);
         });
     }
 
@@ -267,6 +272,12 @@ function drawGraph() {
         });
 
         return vCounts.map((count, i) => [i, count]);
+    }
+
+    function bringElementToTop(element: HTMLElement) {
+      let parent = element.parentElement;
+      parent.removeChild(element);
+      parent.appendChild(element);
     }
 
 }

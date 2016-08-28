@@ -52,9 +52,7 @@ function drawGraph() {
         var vCountSorted = getVertexFrequencyCount().sort(function (a, b) {
             return b[1] - a[1];
         });
-        vCountSorted.forEach(function (vCount) {
-            var index = vCount[0];
-            var vertex = graph.vertices.filter(function (v) { return v.id == vCount[0]; })[0];
+        graph.vertices.forEach(function (vertex) {
             var person = people.filter(function (p) { return p.id == vertex.id; })[0];
             var svgGroup = document.getElementById("g-" + person.id);
             var x = Math.random() * svgWidth;
@@ -76,17 +74,24 @@ function drawGraph() {
                 svgGroup.classList.add('active');
                 getAdjacentEdges().forEach(function (edge) {
                     var line = document.getElementById("l-" + edge.vertex1.id + "-" + edge.vertex2.id);
+                    if (!line)
+                        line = document.getElementById("l-" + edge.vertex2.id + "-" + edge.vertex1.id);
                     line.classList.add('active');
                     var g1 = document.getElementById("g-" + edge.vertex1.id);
                     var g2 = document.getElementById("g-" + edge.vertex2.id);
                     g1.classList.add('active');
                     g2.classList.add('active');
+                    bringElementToTop(line);
+                    bringElementToTop(g1);
+                    bringElementToTop(g2);
                 });
             }
             function deactivateVertex() {
                 svgGroup.classList.remove('active');
                 getAdjacentEdges().forEach(function (edge) {
                     var line = document.getElementById("l-" + edge.vertex1.id + "-" + edge.vertex2.id);
+                    if (!line)
+                        line = document.getElementById("l-" + edge.vertex2.id + "-" + edge.vertex1.id);
                     line.classList.remove('active');
                     var g1 = document.getElementById("g-" + edge.vertex1.id);
                     var g2 = document.getElementById("g-" + edge.vertex2.id);
@@ -125,11 +130,11 @@ function drawGraph() {
                         }
                     };
                 };
-                function onmouseup(a, b) {
+                var onmouseup = function (a, b) {
                     isDragging = false;
                     draggingVertexId = null;
                     deactivateVertex();
-                }
+                };
                 rectElement.onmousedown = onmousedown;
                 textElement.onmousedown = onmousedown;
                 rectElement.onmousemove = onmousemove;
@@ -162,7 +167,8 @@ function drawGraph() {
             line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
             if (makeActive)
                 line.classList.add('active');
-            svg.insertBefore(line, svg.childNodes[0]);
+            var lastLineIndex = svg.getElementsByTagName('line').length - 1;
+            svg.insertBefore(line, svg.childNodes[lastLineIndex]);
         });
     }
     function getVertexFrequencyCount() {
@@ -176,5 +182,10 @@ function drawGraph() {
             vCounts[edge.vertex2.id]++;
         });
         return vCounts.map(function (count, i) { return [i, count]; });
+    }
+    function bringElementToTop(element) {
+        var parent = element.parentElement;
+        parent.removeChild(element);
+        parent.appendChild(element);
     }
 }

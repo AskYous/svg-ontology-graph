@@ -47,7 +47,6 @@
   { "id": 47, "name": 	"Shaykh Al-Hadith" },
   { "id": 48, "name": 	"Imām Aḥmad" },
   { "id": 49, "name": 	"Umar bin 'Abdul 'Azeez" },
-  { "id": 51, "name": 	"Abdullaah bin al-Mubarak" },
   { "id": 51, "name": 	"Ath-Thawree" },
   { "id": 52, "name": 	"Yahya bin Ma’een" },
   { "id": 53, "name": 	"Abu Zura’h" },
@@ -106,7 +105,6 @@
   { "id": 108, "name": 	"Abū Bakr ibn Abi ad-Dunyā" },
   { "id": 109, "name": 	"Abu at-Tīb Aḥmad ibn Ibrāhīm ibn al-Ashnānī al-Baghdādī" },
   { "id": 110, "name": 	 "Abu al-Ḥasan `Alī ibn al-Ḥasan ibn al-`Abd al-Anṣārī" },
-  { "id": 110, "name": 	"al-Awza'i" },
   { "id": 111, "name": 	"Ibn al-A`rābī" },
   { "id": 112, "name": 	"Ishaq ibn Rahweh" },
   { "id": 113, "name": 	"Qutaibah ibn Saeed" },
@@ -211,5 +209,7 @@
   { "id": 221, "name": 	"Abu Hasan al-Ash'ari" },
   { "id": 222, "name": 	"Abul-Hasan al-Bahili" },
   { "id": 223, "name": 	 "Abu Bakr al-Baqillani" },
-  { "id": 224, "name": 	"Abu Ishaq al-Isfaraa'eenee" }
+  { "id": 224, "name": 	"Abu Ishaq al-Isfaraa'eenee" },
+  { "id": 225, "name": 	"al-Awza'i" },
+  { "id": 226, "name": 	"Abdullaah bin al-Mubarak" }
 ]
