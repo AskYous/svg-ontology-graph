@@ -12,7 +12,7 @@ const relationsUri = 'sample-data/small-data/relations.json';
 
 const rectPadding = 15;
 
-// Get Data
+// Load Data
 $.getJSON(peopleUri, (peopleResults: Person[]) => {
     $.getJSON(relationsUri, (relationsResults: Array<Array<number>>) => {
         const vertices = Array<Vertex>(peopleResults.length);
@@ -67,7 +67,7 @@ function drawGraph() {
     function setSVGGroups() {
         graph.vertices.forEach(vertex => {
             const svgGroup = document.createElementNS(ns, 'g');
-            svgGroup.id = `g-${vertex.id}`;
+            svgGroup.id = `g-v-${vertex.id}`;
             svg.appendChild(svgGroup);
         });
     }
@@ -84,7 +84,7 @@ function drawGraph() {
 
             // Initialize variables
             const person = people.filter(p => p.id == vertex.id)[0];
-            const svgGroup = document.getElementById(`g-${person.id}`);
+            const svgGroup = document.getElementById(`g-v-${person.id}`);
 
             // Positions
             const x = Math.random() * svgWidth;
@@ -113,19 +113,21 @@ function drawGraph() {
 
                 // Activate edges
                 getAdjacentEdges().forEach(edge => {
-                    let line = document.getElementById(`l-${edge.vertex1.id}-${edge.vertex2.id}`);
-                    if(!line) line = document.getElementById(`l-${edge.vertex2.id}-${edge.vertex1.id}`);
-                    line.classList.add('active');
+                    let lineGroup = document.getElementById(`g-e-${edge.vertex1.id}-${edge.vertex2.id}`);
+                    if (!lineGroup) lineGroup = document.getElementById(`g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+                    lineGroup.classList.add('active');
 
-                    let g1 = document.getElementById(`g-${edge.vertex1.id}`);
-                    let g2 = document.getElementById(`g-${edge.vertex2.id}`);
+                    let line = lineGroup.getElementsByTagName('line')[0];
 
-                    g1.classList.add('active');
-                    g2.classList.add('active');
+                    let vertexGroup1 = document.getElementById(`g-v-${edge.vertex1.id}`);
+                    let vertexGroup2 = document.getElementById(`g-v-${edge.vertex2.id}`);
 
-                    bringElementToTop(line);
-                    bringElementToTop(g1);
-                    bringElementToTop(g2);
+                    vertexGroup1.classList.add('active');
+                    vertexGroup2.classList.add('active');
+
+                    bringElementToTop(lineGroup);
+                    bringElementToTop(vertexGroup1);
+                    bringElementToTop(vertexGroup2);
                 });
             }
 
@@ -134,15 +136,15 @@ function drawGraph() {
 
                 // Dectivate edges
                 getAdjacentEdges().forEach(edge => {
-                    let line = document.getElementById(`l-${edge.vertex1.id}-${edge.vertex2.id}`);
-                    if(!line) line = document.getElementById(`l-${edge.vertex2.id}-${edge.vertex1.id}`);
-                    line.classList.remove('active');
+                    let lineGroup = document.getElementById(`g-e-${edge.vertex1.id}-${edge.vertex2.id}`);
+                    if (!lineGroup) lineGroup = document.getElementById(`g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+                    lineGroup.classList.remove('active');
 
-                    let g1 = document.getElementById(`g-${edge.vertex1.id}`);
-                    let g2 = document.getElementById(`g-${edge.vertex2.id}`);
+                    let vertexGroup1 = document.getElementById(`g-v-${edge.vertex1.id}`);
+                    let vertexGroup2 = document.getElementById(`g-v-${edge.vertex2.id}`);
 
-                    g1.classList.remove('active');
-                    g2.classList.remove('active');
+                    vertexGroup1.classList.remove('active');
+                    vertexGroup2.classList.remove('active');
                 });
             }
 
@@ -217,26 +219,27 @@ function drawGraph() {
             let makeActive = false;
 
             // Delete if exists
-            let existingEdge = document.querySelector(`#l-${edge.vertex1.id}-${edge.vertex2.id}, #l-${edge.vertex2.id}-${edge.vertex1.id}`);
-            if (existingEdge) {
-                if (existingEdge.classList.contains('active')) makeActive = true;
-                existingEdge.parentNode.removeChild(existingEdge);
+            let existingEdgeGroup = document.querySelector(`#g-e-${edge.vertex1.id}-${edge.vertex2.id}, #g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+            if (existingEdgeGroup) {
+                if (existingEdgeGroup.classList.contains('active')) makeActive = true;
+                existingEdgeGroup.parentNode.removeChild(existingEdgeGroup);
             }
 
-            // The line segment
+            // The edge group
+            let group = <HTMLElement>document.createElementNS(ns, 'g');
             let line = <HTMLElement>document.createElementNS(ns, 'line');
 
             // Vertex SVG Elements
-            let group1 = document.getElementById(`g-${edge.vertex1.id}`) as any;
-            let group2 = document.getElementById(`g-${edge.vertex2.id}`) as any;
+            let vertexGroup1 = <HTMLElement>document.getElementById(`g-v-${edge.vertex1.id}`);
+            let vertexGroup2 = <HTMLElement>document.getElementById(`g-v-${edge.vertex2.id}`);
 
-            let circle1 = group1.getElementsByTagName('rect')[0];
-            let circle2 = group2.getElementsByTagName('rect')[0];
+            let circle1 = vertexGroup1.getElementsByTagName('rect')[0];
+            let circle2 = vertexGroup2.getElementsByTagName('rect')[0];
 
             // Set id
-            let id1 = group1.getAttribute('id').split('-')[1];
-            let id2 = group2.getAttribute('id').split('-')[1];
-            line.id = `l-${id1}-${id2}`;
+            let id1 = vertexGroup1.getAttribute('id').split('-')[2];
+            let id2 = vertexGroup2.getAttribute('id').split('-')[2];
+            group.id = `g-e-${id1}-${id2}`;
 
             // Starting position
             line.setAttribute('x1', String(Number(circle1.getAttribute('x')) + (Number(circle1.getAttribute('width')) / 2)));
@@ -247,11 +250,12 @@ function drawGraph() {
             line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
 
             // Mak active if necessary.
-            if (makeActive) line.classList.add('active');
+            if (makeActive) group.classList.add('active');
 
             // Add on top
             let lastLineIndex = svg.getElementsByTagName('line').length - 1;
-            svg.insertBefore(line, svg.childNodes[lastLineIndex]);
+            group.appendChild(line);
+            svg.insertBefore(group, svg.childNodes[lastLineIndex]);
         });
     }
 
@@ -275,9 +279,9 @@ function drawGraph() {
     }
 
     function bringElementToTop(element: HTMLElement) {
-      let parent = element.parentElement;
-      parent.removeChild(element);
-      parent.appendChild(element);
+        let parent = element.parentElement;
+        parent.removeChild(element);
+        parent.appendChild(element);
     }
 
 }

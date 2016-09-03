@@ -44,7 +44,7 @@ function drawGraph() {
     function setSVGGroups() {
         graph.vertices.forEach(function (vertex) {
             var svgGroup = document.createElementNS(ns, 'g');
-            svgGroup.id = "g-" + vertex.id;
+            svgGroup.id = "g-v-" + vertex.id;
             svg.appendChild(svgGroup);
         });
     }
@@ -54,7 +54,7 @@ function drawGraph() {
         });
         graph.vertices.forEach(function (vertex) {
             var person = people.filter(function (p) { return p.id == vertex.id; })[0];
-            var svgGroup = document.getElementById("g-" + person.id);
+            var svgGroup = document.getElementById("g-v-" + person.id);
             var x = Math.random() * svgWidth;
             var y = Math.random() * svgHeight;
             var textElement = document.createElementNS(ns, 'text');
@@ -73,30 +73,31 @@ function drawGraph() {
             function activateVertex() {
                 svgGroup.classList.add('active');
                 getAdjacentEdges().forEach(function (edge) {
-                    var line = document.getElementById("l-" + edge.vertex1.id + "-" + edge.vertex2.id);
-                    if (!line)
-                        line = document.getElementById("l-" + edge.vertex2.id + "-" + edge.vertex1.id);
-                    line.classList.add('active');
-                    var g1 = document.getElementById("g-" + edge.vertex1.id);
-                    var g2 = document.getElementById("g-" + edge.vertex2.id);
-                    g1.classList.add('active');
-                    g2.classList.add('active');
-                    bringElementToTop(line);
-                    bringElementToTop(g1);
-                    bringElementToTop(g2);
+                    var lineGroup = document.getElementById("g-e-" + edge.vertex1.id + "-" + edge.vertex2.id);
+                    if (!lineGroup)
+                        lineGroup = document.getElementById("g-e-" + edge.vertex2.id + "-" + edge.vertex1.id);
+                    lineGroup.classList.add('active');
+                    var line = lineGroup.getElementsByTagName('line')[0];
+                    var vertexGroup1 = document.getElementById("g-v-" + edge.vertex1.id);
+                    var vertexGroup2 = document.getElementById("g-v-" + edge.vertex2.id);
+                    vertexGroup1.classList.add('active');
+                    vertexGroup2.classList.add('active');
+                    bringElementToTop(lineGroup);
+                    bringElementToTop(vertexGroup1);
+                    bringElementToTop(vertexGroup2);
                 });
             }
             function deactivateVertex() {
                 svgGroup.classList.remove('active');
                 getAdjacentEdges().forEach(function (edge) {
-                    var line = document.getElementById("l-" + edge.vertex1.id + "-" + edge.vertex2.id);
-                    if (!line)
-                        line = document.getElementById("l-" + edge.vertex2.id + "-" + edge.vertex1.id);
-                    line.classList.remove('active');
-                    var g1 = document.getElementById("g-" + edge.vertex1.id);
-                    var g2 = document.getElementById("g-" + edge.vertex2.id);
-                    g1.classList.remove('active');
-                    g2.classList.remove('active');
+                    var lineGroup = document.getElementById("g-e-" + edge.vertex1.id + "-" + edge.vertex2.id);
+                    if (!lineGroup)
+                        lineGroup = document.getElementById("g-e-" + edge.vertex2.id + "-" + edge.vertex1.id);
+                    lineGroup.classList.remove('active');
+                    var vertexGroup1 = document.getElementById("g-v-" + edge.vertex1.id);
+                    var vertexGroup2 = document.getElementById("g-v-" + edge.vertex2.id);
+                    vertexGroup1.classList.remove('active');
+                    vertexGroup2.classList.remove('active');
                 });
             }
             function getAdjacentEdges() {
@@ -147,28 +148,30 @@ function drawGraph() {
     function drawEdges(edges) {
         edges.forEach(function (edge) {
             var makeActive = false;
-            var existingEdge = document.querySelector("#l-" + edge.vertex1.id + "-" + edge.vertex2.id + ", #l-" + edge.vertex2.id + "-" + edge.vertex1.id);
-            if (existingEdge) {
-                if (existingEdge.classList.contains('active'))
+            var existingEdgeGroup = document.querySelector("#g-e-" + edge.vertex1.id + "-" + edge.vertex2.id + ", #g-e-" + edge.vertex2.id + "-" + edge.vertex1.id);
+            if (existingEdgeGroup) {
+                if (existingEdgeGroup.classList.contains('active'))
                     makeActive = true;
-                existingEdge.parentNode.removeChild(existingEdge);
+                existingEdgeGroup.parentNode.removeChild(existingEdgeGroup);
             }
+            var group = document.createElementNS(ns, 'g');
             var line = document.createElementNS(ns, 'line');
-            var group1 = document.getElementById("g-" + edge.vertex1.id);
-            var group2 = document.getElementById("g-" + edge.vertex2.id);
-            var circle1 = group1.getElementsByTagName('rect')[0];
-            var circle2 = group2.getElementsByTagName('rect')[0];
-            var id1 = group1.getAttribute('id').split('-')[1];
-            var id2 = group2.getAttribute('id').split('-')[1];
-            line.id = "l-" + id1 + "-" + id2;
+            var vertexGroup1 = document.getElementById("g-v-" + edge.vertex1.id);
+            var vertexGroup2 = document.getElementById("g-v-" + edge.vertex2.id);
+            var circle1 = vertexGroup1.getElementsByTagName('rect')[0];
+            var circle2 = vertexGroup2.getElementsByTagName('rect')[0];
+            var id1 = vertexGroup1.getAttribute('id').split('-')[2];
+            var id2 = vertexGroup2.getAttribute('id').split('-')[2];
+            group.id = "g-e-" + id1 + "-" + id2;
             line.setAttribute('x1', String(Number(circle1.getAttribute('x')) + (Number(circle1.getAttribute('width')) / 2)));
             line.setAttribute('y1', String(Number(circle1.getAttribute('y')) + (Number(circle1.getAttribute('height')) / 2)));
             line.setAttribute('x2', String(Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2)));
             line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
             if (makeActive)
-                line.classList.add('active');
+                group.classList.add('active');
             var lastLineIndex = svg.getElementsByTagName('line').length - 1;
-            svg.insertBefore(line, svg.childNodes[lastLineIndex]);
+            group.appendChild(line);
+            svg.insertBefore(group, svg.childNodes[lastLineIndex]);
         });
     }
     function getVertexFrequencyCount() {
