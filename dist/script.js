@@ -73,9 +73,7 @@ function drawGraph() {
             function activateVertex() {
                 svgGroup.classList.add('active');
                 getAdjacentEdges().forEach(function (edge) {
-                    var lineGroup = document.getElementById("g-e-" + edge.vertex1.id + "-" + edge.vertex2.id);
-                    if (!lineGroup)
-                        lineGroup = document.getElementById("g-e-" + edge.vertex2.id + "-" + edge.vertex1.id);
+                    var lineGroup = getSvgLineGroup(edge);
                     lineGroup.classList.add('active');
                     var line = lineGroup.getElementsByTagName('line')[0];
                     var vertexGroup1 = document.getElementById("g-v-" + edge.vertex1.id);
@@ -90,9 +88,7 @@ function drawGraph() {
             function deactivateVertex() {
                 svgGroup.classList.remove('active');
                 getAdjacentEdges().forEach(function (edge) {
-                    var lineGroup = document.getElementById("g-e-" + edge.vertex1.id + "-" + edge.vertex2.id);
-                    if (!lineGroup)
-                        lineGroup = document.getElementById("g-e-" + edge.vertex2.id + "-" + edge.vertex1.id);
+                    var lineGroup = getSvgLineGroup(edge);
                     lineGroup.classList.remove('active');
                     var vertexGroup1 = document.getElementById("g-v-" + edge.vertex1.id);
                     var vertexGroup2 = document.getElementById("g-v-" + edge.vertex2.id);
@@ -148,7 +144,7 @@ function drawGraph() {
     function drawEdges(edges) {
         edges.forEach(function (edge) {
             var makeActive = false;
-            var existingEdgeGroup = document.querySelector("#g-e-" + edge.vertex1.id + "-" + edge.vertex2.id + ", #g-e-" + edge.vertex2.id + "-" + edge.vertex1.id);
+            var existingEdgeGroup = getSvgLineGroup(edge);
             if (existingEdgeGroup) {
                 if (existingEdgeGroup.classList.contains('active'))
                     makeActive = true;
@@ -156,6 +152,7 @@ function drawGraph() {
             }
             var group = document.createElementNS(ns, 'g');
             var line = document.createElementNS(ns, 'line');
+            var arrow = document.createElementNS(ns, 'path');
             var vertexGroup1 = document.getElementById("g-v-" + edge.vertex1.id);
             var vertexGroup2 = document.getElementById("g-v-" + edge.vertex2.id);
             var circle1 = vertexGroup1.getElementsByTagName('rect')[0];
@@ -163,16 +160,74 @@ function drawGraph() {
             var id1 = vertexGroup1.getAttribute('id').split('-')[2];
             var id2 = vertexGroup2.getAttribute('id').split('-')[2];
             group.id = "g-e-" + id1 + "-" + id2;
-            line.setAttribute('x1', String(Number(circle1.getAttribute('x')) + (Number(circle1.getAttribute('width')) / 2)));
-            line.setAttribute('y1', String(Number(circle1.getAttribute('y')) + (Number(circle1.getAttribute('height')) / 2)));
-            line.setAttribute('x2', String(Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2)));
-            line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
+            var startPointX = Number(circle1.getAttribute('x')) + (Number(circle1.getAttribute('width')) / 2);
+            var startPointY = Number(circle1.getAttribute('y')) + (Number(circle1.getAttribute('height')) / 2);
+            var endingPointX = Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2);
+            var endingPointY = Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2);
+            line.setAttribute('x1', String(startPointX));
+            line.setAttribute('y1', String(startPointY));
+            line.setAttribute('x2', String(endingPointX));
+            line.setAttribute('y2', String(endingPointY));
+            var midpointX = Math.abs(startPointX + endingPointX) / 2;
+            var midpointY = Math.abs(startPointY + endingPointY) / 2;
+            arrow.setAttribute('d', "M" + midpointX + "," + (midpointY - 10) + " L" + (midpointX + 25) + "," + (midpointY + 0) + ", L" + midpointX + "," + (midpointY + 10) + ", L" + midpointX + "," + (midpointY - 10));
             if (makeActive)
                 group.classList.add('active');
             var lastLineIndex = svg.getElementsByTagName('line').length - 1;
             group.appendChild(line);
+            group.appendChild(arrow);
             svg.insertBefore(group, svg.childNodes[lastLineIndex]);
+            arrow.style.transform = "rotate(" + getEdgeAngle(edge) + "deg)";
+            arrow.style.transformOrigin = "50% 50%";
         });
+    }
+    function getSvgLineGroup(edge) {
+        return document.querySelector("#g-e-" + edge.vertex1.id + "-" + edge.vertex2.id + ", #g-e-" + edge.vertex2.id + "-" + edge.vertex1.id);
+    }
+    function getEdgeAngle(edge) {
+        var line = getSvgLineGroup(edge).getElementsByTagName('line')[0];
+        var x1 = Number(line.getAttribute('x1'));
+        var y1 = Number(line.getAttribute('y1'));
+        var x2 = Number(line.getAttribute('x2'));
+        var y2 = Number(line.getAttribute('y2'));
+        var slope = {
+            'numerator': y2 - y1,
+            'denominator': x2 - x1,
+            'value': (y2 - y1) / (x2 - x1),
+            'quadrant': null
+        };
+        if (slope.numerator > 0) {
+            if (slope.denominator > 0) {
+                slope.quadrant = 1;
+            }
+            else {
+                slope.quadrant = 2;
+            }
+        }
+        else {
+            if (slope.denominator > 0) {
+                slope.quadrant = 4;
+            }
+            else {
+                slope.quadrant = 3;
+            }
+            ;
+        }
+        var angle = (Math.atan(slope.value) * (180 / Math.PI));
+        switch (slope.quadrant) {
+            case 1:
+                angle = angle;
+                break;
+            case 2:
+                angle = 180 + angle;
+                break;
+            case 3:
+                angle = angle - 180;
+                break;
+            case 4: angle = angle;
+        }
+        console.log(line, angle);
+        return angle;
     }
     function getVertexFrequencyCount() {
         var vCounts = Array();

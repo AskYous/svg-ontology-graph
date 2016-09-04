@@ -113,8 +113,7 @@ function drawGraph() {
 
                 // Activate edges
                 getAdjacentEdges().forEach(edge => {
-                    let lineGroup = document.getElementById(`g-e-${edge.vertex1.id}-${edge.vertex2.id}`);
-                    if (!lineGroup) lineGroup = document.getElementById(`g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+                    let lineGroup = getSvgLineGroup(edge);
                     lineGroup.classList.add('active');
 
                     let line = lineGroup.getElementsByTagName('line')[0];
@@ -136,8 +135,7 @@ function drawGraph() {
 
                 // Dectivate edges
                 getAdjacentEdges().forEach(edge => {
-                    let lineGroup = document.getElementById(`g-e-${edge.vertex1.id}-${edge.vertex2.id}`);
-                    if (!lineGroup) lineGroup = document.getElementById(`g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+                    let lineGroup = getSvgLineGroup(edge);
                     lineGroup.classList.remove('active');
 
                     let vertexGroup1 = document.getElementById(`g-v-${edge.vertex1.id}`);
@@ -219,7 +217,7 @@ function drawGraph() {
             let makeActive = false;
 
             // Delete if exists
-            let existingEdgeGroup = document.querySelector(`#g-e-${edge.vertex1.id}-${edge.vertex2.id}, #g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+            let existingEdgeGroup = getSvgLineGroup(edge);
             if (existingEdgeGroup) {
                 if (existingEdgeGroup.classList.contains('active')) makeActive = true;
                 existingEdgeGroup.parentNode.removeChild(existingEdgeGroup);
@@ -228,6 +226,7 @@ function drawGraph() {
             // The edge group
             let group = <HTMLElement>document.createElementNS(ns, 'g');
             let line = <HTMLElement>document.createElementNS(ns, 'line');
+            let arrow = <HTMLElement>document.createElementNS(ns, 'path');
 
             // Vertex SVG Elements
             let vertexGroup1 = <HTMLElement>document.getElementById(`g-v-${edge.vertex1.id}`);
@@ -242,12 +241,23 @@ function drawGraph() {
             group.id = `g-e-${id1}-${id2}`;
 
             // Starting position
-            line.setAttribute('x1', String(Number(circle1.getAttribute('x')) + (Number(circle1.getAttribute('width')) / 2)));
-            line.setAttribute('y1', String(Number(circle1.getAttribute('y')) + (Number(circle1.getAttribute('height')) / 2)));
+            let startPointX = Number(circle1.getAttribute('x')) + (Number(circle1.getAttribute('width')) / 2);
+            let startPointY = Number(circle1.getAttribute('y')) + (Number(circle1.getAttribute('height')) / 2);
 
             // Ending position
-            line.setAttribute('x2', String(Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2)));
-            line.setAttribute('y2', String(Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2)));
+            let endingPointX = Number(circle2.getAttribute('x')) + (Number(circle2.getAttribute('width')) / 2);
+            let endingPointY = Number(circle2.getAttribute('y')) + (Number(circle2.getAttribute('height')) / 2);
+
+            line.setAttribute('x1', String(startPointX));
+            line.setAttribute('y1', String(startPointY));
+
+            line.setAttribute('x2', String(endingPointX));
+            line.setAttribute('y2', String(endingPointY));
+
+            // arrow properties
+            let midpointX = Math.abs(startPointX + endingPointX) / 2;
+            let midpointY = Math.abs(startPointY + endingPointY) / 2;
+            arrow.setAttribute('d', `M${midpointX},${midpointY - 10} L${midpointX + 25},${midpointY + 0}, L${midpointX},${midpointY + 10}, L${midpointX},${midpointY - 10}`);
 
             // Mak active if necessary.
             if (makeActive) group.classList.add('active');
@@ -255,8 +265,51 @@ function drawGraph() {
             // Add on top
             let lastLineIndex = svg.getElementsByTagName('line').length - 1;
             group.appendChild(line);
+            group.appendChild(arrow);
             svg.insertBefore(group, svg.childNodes[lastLineIndex]);
+            arrow.style.transform = `rotate(${getEdgeAngle(edge)}deg)`;
+            arrow.style.transformOrigin = `50% 50%`;
         });
+    }
+
+    function getSvgLineGroup(edge: Edge): HTMLElement {
+      return <HTMLElement> document.querySelector(`#g-e-${edge.vertex1.id}-${edge.vertex2.id}, #g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+    }
+
+    function getEdgeAngle(edge: Edge){
+      let line = getSvgLineGroup(edge).getElementsByTagName('line')[0];
+
+      let x1 = Number(line.getAttribute('x1'));
+      let y1 = Number(line.getAttribute('y1'));
+      let x2 = Number(line.getAttribute('x2'));
+      let y2 = Number(line.getAttribute('y2'));
+
+      let slope = {
+        'numerator': y2 - y1,
+        'denominator': x2 - x1,
+        'value': (y2 - y1) / (x2 - x1),
+        'quadrant': null
+      };
+
+      if(slope.numerator > 0){ // bottom (graph is not like high school graphs)
+        if(slope.denominator > 0) { slope.quadrant = 1; } // right
+        else { slope.quadrant = 2; } // left
+      } else { // bottom
+        if(slope.denominator > 0) { slope.quadrant = 4; } // right
+        else { slope.quadrant = 3; };
+      }
+
+      let angle = (Math.atan(slope.value) * (180/Math.PI));
+      switch (slope.quadrant){
+        case 1: angle = angle; break;
+        case 2: angle = 180 + angle; break; // works!
+        case 3: angle = angle - 180; break;
+        case 4: angle = angle;
+      }
+
+      console.log(line, angle);
+
+      return angle;
     }
 
     /**

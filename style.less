@@ -15,7 +15,7 @@ svg {
   // padding: 50px;
 
   g.active {
-      rect, line {
+      *:first-child {
       stroke: blue;
       stroke-width: 7;
     }
@@ -31,11 +31,12 @@ svg {
     ry: 5px;
   }
 
-  line {
+  line, path {
     z-index: -1;
     stroke: orange;
     stroke-width: 3;
   }
+
   line.active{
     stroke: blue;
   }
