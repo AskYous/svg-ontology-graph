@@ -37,6 +37,10 @@ svg {
     stroke-width: 3;
   }
 
+  path {
+    transform-origin: 0.00000001%; // putting 0% compiles to 0 which doesn't work.
+  }
+
   line.active{
     stroke: blue;
   }

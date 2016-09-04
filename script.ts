@@ -268,7 +268,6 @@ function drawGraph() {
             group.appendChild(arrow);
             svg.insertBefore(group, svg.childNodes[lastLineIndex]);
             arrow.style.transform = `rotate(${getEdgeAngle(edge)}deg)`;
-            arrow.style.transformOrigin = `50% 50%`;
         });
     }
 
@@ -291,8 +290,8 @@ function drawGraph() {
         'quadrant': null
       };
 
-      if(slope.numerator > 0){ // bottom (graph is not like high school graphs)
-        if(slope.denominator > 0) { slope.quadrant = 1; } // right
+      if(slope.numerator >= 0){ // bottom (graph is not like high school graphs)
+        if(slope.denominator >= 0) { slope.quadrant = 1; } // right
         else { slope.quadrant = 2; } // left
       } else { // bottom
         if(slope.denominator > 0) { slope.quadrant = 4; } // right

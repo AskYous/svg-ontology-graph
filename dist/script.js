@@ -178,7 +178,6 @@ function drawGraph() {
             group.appendChild(arrow);
             svg.insertBefore(group, svg.childNodes[lastLineIndex]);
             arrow.style.transform = "rotate(" + getEdgeAngle(edge) + "deg)";
-            arrow.style.transformOrigin = "50% 50%";
         });
     }
     function getSvgLineGroup(edge) {
@@ -196,8 +195,8 @@ function drawGraph() {
             'value': (y2 - y1) / (x2 - x1),
             'quadrant': null
         };
-        if (slope.numerator > 0) {
-            if (slope.denominator > 0) {
+        if (slope.numerator >= 0) {
+            if (slope.denominator >= 0) {
                 slope.quadrant = 1;
             }
             else {
