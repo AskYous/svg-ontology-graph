@@ -172,8 +172,8 @@ function drawGraph() {
                             svg.appendChild(svgGroup);
 
                             // Get mouse location
-                            let x = event.clientX - (rectElement.getBoundingClientRect().width / 2);
-                            let y = event.clientY - (rectElement.getBoundingClientRect().height / 2);
+                            let x = (event.clientX + window.scrollX) - (rectElement.getBoundingClientRect().width / 2);
+                            let y = (event.clientY + window.scrollY) - (rectElement.getBoundingClientRect().height / 2);
 
                             // Move circle to mouse location
                             rectElement.setAttribute('x', String(x));

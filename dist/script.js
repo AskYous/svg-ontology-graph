@@ -116,8 +116,8 @@ function drawGraph() {
                         if (isDragging) {
                             svg.removeChild(svgGroup);
                             svg.appendChild(svgGroup);
-                            var x_1 = event.clientX - (rectElement.getBoundingClientRect().width / 2);
-                            var y_1 = event.clientY - (rectElement.getBoundingClientRect().height / 2);
+                            var x_1 = (event.clientX + window.scrollX) - (rectElement.getBoundingClientRect().width / 2);
+                            var y_1 = (event.clientY + window.scrollY) - (rectElement.getBoundingClientRect().height / 2);
                             rectElement.setAttribute('x', String(x_1));
                             rectElement.setAttribute('y', String(y_1));
                             var edges = getAdjacentEdges();
