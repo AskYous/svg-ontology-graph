@@ -204,7 +204,7 @@ function drawGraph() {
             }
         }
         else {
-            if (slope.denominator > 0) {
+            if (slope.denominator >= 0) {
                 slope.quadrant = 4;
             }
             else {

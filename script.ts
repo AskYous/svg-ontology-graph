@@ -294,7 +294,7 @@ function drawGraph() {
         if(slope.denominator >= 0) { slope.quadrant = 1; } // right
         else { slope.quadrant = 2; } // left
       } else { // bottom
-        if(slope.denominator > 0) { slope.quadrant = 4; } // right
+        if(slope.denominator >= 0) { slope.quadrant = 4; } // right
         else { slope.quadrant = 3; };
       }
 
