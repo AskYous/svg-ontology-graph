@@ -2,6 +2,24 @@
 class SVGOntologyGraph {
     constructor(private people: Array<Person>, private relations: Array<Array<number>>, private svgElement: HTMLElement) {
 
+      createControlBox();
+      drawSVGGraph();
+
+      function createControlBox(){
+        const controlBox = document.createElement('div'); // the control box
+        controlBox.id = 'control-box';
+
+        const input = document.createElement('input');
+        input.id = 'search';
+        input.placeholder = 'Search...';
+        controlBox.appendChild(input);
+
+        document.getElementsByTagName('body')[0].appendChild(controlBox);
+      }
+
+      function drawSVGGraph(){
+
+
         let graph: DiGraph;
         let isDragging = false;
         let draggingVertexId = null;
@@ -327,5 +345,7 @@ class SVGOntologyGraph {
             }
 
         }
+      }
+
     };
 }
