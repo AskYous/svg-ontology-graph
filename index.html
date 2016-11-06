@@ -7,12 +7,8 @@
 
   <link rel="stylesheet" href="dist/style.css" media="screen" title="no title" charset="utf-8" />
 
-  <!-- Data -->
-
 </head>
 <body>
-
-  <!-- <h2>SVG</h2> -->
 
   <svg id="ontology-graph" xmlns="http://www.w3.org/2000/svg" version="1.1">
   </svg>
@@ -24,8 +20,8 @@
   <script src="dist/script.js" charset="utf-8"></script>
 
   <script type="text/javascript">
-  var peopleUri = 'sample-data/small-data/people.json';
-  var relationsUri = 'sample-data/small-data/relations.json';
+  var peopleUri = 'sample-data/large-data/people.json';
+  var relationsUri = 'sample-data/large-data/relations.json';
   var svgElement = document.getElementById("ontology-graph");
 
   $.getJSON(peopleUri, (peopleResults) => {

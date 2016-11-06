@@ -1,38 +1,179 @@
 /// <reference path="./declarations/person.d.ts"/>
 class SVGOntologyGraph {
     constructor(private people: Array<Person>, private relations: Array<Array<number>>, private svgElement: HTMLElement) {
+      const peopleToDisplay = new Array<Person>(); // the people that will display on the screen;
+      const relationsToDisplay = new Array<Array<number>>(); // the lines that will display on the screen;
 
-        let graph: DiGraph;
+      let graph: DiGraph;
+
+      createControlBox();
+      drawSVGGraph();
+
+      function createControlBox(){
+        const controlBox = document.createElement('div'); // the control box
+        controlBox.id = 'control-box';
+
+        const input = document.createElement('input');
+        input.id = 'search';
+        input.placeholder = 'Search...';
+        input.onkeyup = event => {
+          const query = input.value;
+          const peopleCheckBoxes = <NodeListOf<HTMLInputElement>> controlBox.getElementsByClassName('person-checkbox');
+          for(let i = 0; i < peopleCheckBoxes.length; i++){
+            const checkbox = peopleCheckBoxes[i];
+            const personId = Number(checkbox.id.split('-')[1]);
+            const checkBoxContainer = document.getElementById(`person-checkbox-${personId}`);
+            const person = people.filter(person => person.id == personId)[0];
+            if(query == ''){
+              checkBoxContainer.style.display = 'block';
+            }
+            if(person.name.toLowerCase().indexOf(query.toLowerCase()) == -1){
+              checkBoxContainer.style.display = 'none';
+            } else{
+              checkBoxContainer.style.display = 'block';
+            }
+          }
+        }
+        controlBox.appendChild(input);
+
+        { // Toggle check all checkbox
+          const toggleCheckAll = document.createElement('div');
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = 'toggle-check-all-checkbox';
+
+          checkbox.onchange = event => {
+              const peopleCheckBoxes = <NodeListOf<HTMLInputElement>> controlBox.getElementsByClassName('person-checkbox');
+              let alertMessage: string;
+              if(checkbox.checked){
+                alertMessage = 'This will put all people on the screen. Continue?';
+              } else {
+                alertMessage = 'This will remove all people from the screen. Continue?'
+              }
+              if(confirm(alertMessage)){
+                for(let i = 0; i < peopleCheckBoxes.length; i++){
+                  const personChecked = peopleCheckBoxes[i]['checked'];
+                  if(personChecked != checkbox.checked){
+                    peopleCheckBoxes[i].click();
+                  }
+                }
+              }
+          };
+
+          const label = document.createElement('label');
+          label.innerHTML = 'Toggle all';
+          label.htmlFor = checkbox.id;
+
+          toggleCheckAll.id = 'toggle-check-all';
+          toggleCheckAll.appendChild(checkbox);
+          toggleCheckAll.appendChild(label);
+
+          controlBox.appendChild(toggleCheckAll);
+        }
+
+        const peopleCheckboxContainer = document.createElement('div');
+        peopleCheckboxContainer.id = 'people-checkbox-container';
+
+        people.forEach(person => { // create checkboxes per person
+          const divContainer = document.createElement('div'); // div container
+          divContainer.classList.add('person-checkbox-container');
+          divContainer.id = `person-checkbox-${person.id}`;
+
+          const checkbox = document.createElement('input'); // checkbox
+          checkbox.type = 'checkbox'
+          checkbox.id = `checkbox-${person.id}`;
+          checkbox.classList.add('person-checkbox')
+          divContainer.appendChild(checkbox);
+
+          checkbox.onchange = event => { // on checkbox click
+            if(checkbox.checked){
+              peopleToDisplay.push(person);
+            } else { // remove the person from the array
+              for(let i = 0; i < peopleToDisplay.length; i++){
+                if(peopleToDisplay[i].id == person.id){
+
+                  deletePersonAndRelationsElements(peopleToDisplay[i]);
+                  peopleToDisplay.splice(i, 1);
+
+                  relationsToDisplay.filter(relation => { // remove relations
+                    return relation[0] == person.id || relation[1] == person.id;
+                  }).forEach(relation => {
+                    const index = relationsToDisplay.indexOf(relation);
+                    relationsToDisplay.splice(index, 1);
+                  });
+                }
+              }
+            }
+
+            relations.filter(relation => { // set relations (later are lines) to display
+              const firstPersonInRelation = peopleToDisplay.filter(person => person.id == relation[0]).length > 0;
+              const secondPersonInRelation = peopleToDisplay.filter(person => person.id == relation[1]).length > 0;
+
+              if(firstPersonInRelation && secondPersonInRelation){
+                relationsToDisplay.push(relation);
+              }
+            });
+
+            drawSVGGraph();
+          };
+
+          const label = document.createElement('label'); // label
+          label.innerHTML = person.name;
+          label.htmlFor = checkbox.id;
+          divContainer.appendChild(label);
+
+          peopleCheckboxContainer.appendChild(divContainer);
+        });
+
+        controlBox.appendChild(peopleCheckboxContainer);
+
+        document.getElementsByTagName('body')[0].appendChild(controlBox);
+      }
+
+      function deletePersonAndRelationsElements(person: Person){
+        const group = document.getElementById(`g-v-${person.id}`);
+        graph.edges.filter(edge => {
+          return edge.vertex1.id == person.id || edge.vertex2.id == person.id;
+        }).forEach((edge, i) => {
+          const edge1 = document.getElementById(`g-e-${edge.vertex1.id}-${edge.vertex2.id}`);
+          const edge2 = document.getElementById(`g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+
+          // remove lines
+          if(edge1) edge1.parentNode.removeChild(edge1);
+          if(edge2) edge2.parentNode.removeChild(edge2);
+        });
+
+        group.parentNode.removeChild(group);
+
+      }
+
+      function drawSVGGraph(){
         let isDragging = false;
         let draggingVertexId = null;
-
-        const peopleUri = 'sample-data/large-data/people.json';
-        const relationsUri = 'sample-data/large-data/relations.json';
 
         const rectPadding = 15;
 
         // Load Data
-        const vertices = Array<Vertex>(people.length);
-        const edges = Array<Edge>(relations.length);
+        const vertices = Array<Vertex>();
+        const edges = Array<Edge>();
 
         // Convert people to vertices and add them to vertices list
-        people.forEach(person => {
+        peopleToDisplay.forEach(person => {
             vertices.push(new Vertex(person.id));
         });
 
-        // Convert relations to edges and add them to edges list
-        relations.forEach(relation => {
-            const firstVertex: Vertex = vertices.filter(v => v.id == relation[0])[0];
-            const secondVertex: Vertex = vertices.filter(v => v.id == relation[1])[0];
-            const edge = new Edge(firstVertex, secondVertex);
-
-            edges.push(edge);
+        relationsToDisplay.forEach(relation => {
+          const vertex1 = vertices.filter(v => v.id == relation[0])[0];
+          const vertex2 = vertices.filter(v => v.id == relation[1])[0];
+          edges.push(new Edge(vertex1, vertex2));
         });
 
         graph = new DiGraph(vertices, edges);
         drawGraph();
 
         function drawGraph() {
+
             const ns = 'http://www.w3.org/2000/svg';
 
             // Some math
@@ -56,8 +197,12 @@ class SVGOntologyGraph {
 
             function setSVGGroups() {
                 graph.vertices.forEach(vertex => {
+                    const elementId = `g-v-${vertex.id}`;
+                    const oldGroup = document.getElementById(elementId);
+                    if(oldGroup) return;
+
                     const svgGroup = document.createElementNS(ns, 'g');
-                    svgGroup.id = `g-v-${vertex.id}`;
+                    svgGroup.id = elementId;
                     svgElement.appendChild(svgGroup);
                 });
             }
@@ -71,16 +216,22 @@ class SVGOntologyGraph {
                 });
 
                 graph.vertices.forEach(vertex => {
-
                     // Initialize variables
-                    const person = people.filter(p => p.id == vertex.id)[0];
+                    const person = peopleToDisplay.filter(p => p.id == vertex.id)[0];
                     const svgGroup = document.getElementById(`g-v-${person.id}`);
+
+                    if(
+                      svgGroup.getElementsByTagName('rect').length > 0
+                      && svgGroup.getElementsByTagName('text')
+                    ){
+                      return; // no need to recreate elements;
+                    }
 
                     // Positions
                     const x = Math.random() * svgWidth;
                     const y = Math.random() * svgHeight;
 
-                    const textElement = <HTMLElement>document.createElementNS(ns, 'text');
+                    const textElement = document.createElementNS(ns, 'text');
                     textElement.innerHTML = person.name;
                     textElement.setAttribute('x', String(x));
                     textElement.setAttribute('y', String(y));
@@ -88,7 +239,7 @@ class SVGOntologyGraph {
                     svgGroup.appendChild(textElement);
 
                     // Circle
-                    const rectElement = <HTMLElement>document.createElementNS(ns, 'rect');
+                    const rectElement = document.createElementNS(ns, 'rect');
                     rectElement.setAttribute('x', String(x - (rectPadding / 2)));
                     rectElement.setAttribute('y', String(y - (rectPadding / 2)));
                     rectElement.setAttribute('width', String(textElement.getBoundingClientRect().width + rectPadding));
@@ -196,14 +347,12 @@ class SVGOntologyGraph {
                         // Note that dragging has finished.
                         rectElement.onmouseup = onmouseup as any;
                         textElement.onmouseup = onmouseup as any;
-
                     }
                 });
             }
 
             function drawEdges(edges: Edge[]) {
                 edges.forEach(edge => {
-
                     let makeActive = false;
 
                     // Delete if exists
@@ -214,9 +363,9 @@ class SVGOntologyGraph {
                     }
 
                     // The edge group
-                    let group = <HTMLElement>document.createElementNS(ns, 'g');
-                    let line = <HTMLElement>document.createElementNS(ns, 'line');
-                    let arrow = <HTMLElement>document.createElementNS(ns, 'path');
+                    let group = document.createElementNS(ns, 'g');
+                    let line = document.createElementNS(ns, 'line');
+                    let arrow = document.createElementNS(ns, 'path');
 
                     // Vertex SVG Elements
                     let vertexGroup1 = <HTMLElement>document.getElementById(`g-v-${edge.vertex1.id}`);
@@ -254,6 +403,7 @@ class SVGOntologyGraph {
 
                     // Add on top
                     let lastLineIndex = svgElement.getElementsByTagName('line').length - 1;
+                    if(lastLineIndex = -1) lastLineIndex = 0; // if no lines found, put it as the first.
                     group.appendChild(line);
                     group.appendChild(arrow);
                     svgElement.insertBefore(group, svgElement.childNodes[lastLineIndex]);
@@ -325,7 +475,8 @@ class SVGOntologyGraph {
                 parent.removeChild(element);
                 parent.appendChild(element);
             }
-
         }
+      }
+
     };
 }
