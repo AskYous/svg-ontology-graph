@@ -1,6 +1,9 @@
 /// <reference path="./declarations/person.d.ts"/>
 class SVGOntologyGraph {
     constructor(private people: Array<Person>, private relations: Array<Array<number>>, private svgElement: HTMLElement) {
+      const peopleToDisplay = new Array<Person>(); // the people that will display on the screen;
+      const relationsToDisplay = new Array<Array<number>>(); // the lines that will display on the screen;
+      let graph: DiGraph;
 
       createControlBox();
       drawSVGGraph();
@@ -14,9 +17,7 @@ class SVGOntologyGraph {
         input.placeholder = 'Search...';
         controlBox.appendChild(input);
 
-        const peopleCheckboxes = new Array<HTMLDivElement>();
-
-        people.forEach(person => {
+        people.forEach(person => { // create checkboxes per person
           const divContainer = document.createElement('div'); // div container
           divContainer.classList.add('person-checkbox');
           divContainer.id = `person-checkbox-${person.id}`;
@@ -25,6 +26,29 @@ class SVGOntologyGraph {
           checkbox.type = 'checkbox'
           checkbox.id = `checkbox-${person.id}`;
           divContainer.appendChild(checkbox);
+
+          checkbox.addEventListener('change', event => { // on checkbox click
+            if(checkbox.checked){
+              peopleToDisplay.push(person);
+            } else { // remove the person from the array
+              for(let i = 0; i < peopleToDisplay.length; i++){
+                if(peopleToDisplay[i].id == person.id){
+                  peopleToDisplay.splice(i, 1);
+                }
+              }
+            }
+
+            relations.filter(relation => { // set relations (later are lines) to display
+              const firstPersonInRelation = peopleToDisplay.filter(person => person.id == relation[0]).length > 0;
+              const secondPersonInRelation = peopleToDisplay.filter(person => person.id == relation[1]).length > 0;
+
+              if(firstPersonInRelation && secondPersonInRelation){
+                relationsToDisplay.push(relation);
+              }
+            });
+
+            drawSVGGraph();
+          });
 
           const label = document.createElement('label'); // label
           label.innerHTML = person.name;
@@ -38,39 +62,31 @@ class SVGOntologyGraph {
       }
 
       function drawSVGGraph(){
-
-
-        let graph: DiGraph;
         let isDragging = false;
         let draggingVertexId = null;
-
-        const peopleUri = 'sample-data/large-data/people.json';
-        const relationsUri = 'sample-data/large-data/relations.json';
 
         const rectPadding = 15;
 
         // Load Data
-        const vertices = Array<Vertex>(people.length);
-        const edges = Array<Edge>(relations.length);
+        const vertices = Array<Vertex>();
+        const edges = Array<Edge>();
 
         // Convert people to vertices and add them to vertices list
-        people.forEach(person => {
+        peopleToDisplay.forEach(person => {
             vertices.push(new Vertex(person.id));
         });
 
-        // Convert relations to edges and add them to edges list
-        relations.forEach(relation => {
-            const firstVertex: Vertex = vertices.filter(v => v.id == relation[0])[0];
-            const secondVertex: Vertex = vertices.filter(v => v.id == relation[1])[0];
-            const edge = new Edge(firstVertex, secondVertex);
-
-            edges.push(edge);
+        relationsToDisplay.forEach(relation => {
+          const vertex1 = vertices.filter(v => v.id == relation[0])[0];
+          const vertex2 = vertices.filter(v => v.id == relation[1])[0];
+          edges.push(new Edge(vertex1, vertex2));
         });
 
         graph = new DiGraph(vertices, edges);
         drawGraph();
 
         function drawGraph() {
+
             const ns = 'http://www.w3.org/2000/svg';
 
             // Some math
@@ -94,8 +110,12 @@ class SVGOntologyGraph {
 
             function setSVGGroups() {
                 graph.vertices.forEach(vertex => {
+                    const elementId = `g-v-${vertex.id}`;
+                    const oldGroup = document.getElementById(elementId);
+                    if(oldGroup) return;
+
                     const svgGroup = document.createElementNS(ns, 'g');
-                    svgGroup.id = `g-v-${vertex.id}`;
+                    svgGroup.id = elementId;
                     svgElement.appendChild(svgGroup);
                 });
             }
@@ -109,10 +129,16 @@ class SVGOntologyGraph {
                 });
 
                 graph.vertices.forEach(vertex => {
-
                     // Initialize variables
-                    const person = people.filter(p => p.id == vertex.id)[0];
+                    const person = peopleToDisplay.filter(p => p.id == vertex.id)[0];
                     const svgGroup = document.getElementById(`g-v-${person.id}`);
+
+                    if(
+                      svgGroup.getElementsByTagName('rect').length > 0
+                      && svgGroup.getElementsByTagName('text')
+                    ){
+                      return; // no need to recreate elements;
+                    }
 
                     // Positions
                     const x = Math.random() * svgWidth;
@@ -234,14 +260,12 @@ class SVGOntologyGraph {
                         // Note that dragging has finished.
                         rectElement.onmouseup = onmouseup as any;
                         textElement.onmouseup = onmouseup as any;
-
                     }
                 });
             }
 
             function drawEdges(edges: Edge[]) {
                 edges.forEach(edge => {
-
                     let makeActive = false;
 
                     // Delete if exists
@@ -292,6 +316,7 @@ class SVGOntologyGraph {
 
                     // Add on top
                     let lastLineIndex = svgElement.getElementsByTagName('line').length - 1;
+                    if(lastLineIndex = -1) lastLineIndex = 0; // if no lines found, put it as the first.
                     group.appendChild(line);
                     group.appendChild(arrow);
                     svgElement.insertBefore(group, svgElement.childNodes[lastLineIndex]);
@@ -363,7 +388,6 @@ class SVGOntologyGraph {
                 parent.removeChild(element);
                 parent.appendChild(element);
             }
-
         }
       }
 

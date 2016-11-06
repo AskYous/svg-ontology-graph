@@ -3,6 +3,9 @@ var SVGOntologyGraph = (function () {
         this.people = people;
         this.relations = relations;
         this.svgElement = svgElement;
+        var peopleToDisplay = new Array();
+        var relationsToDisplay = new Array();
+        var graph;
         createControlBox();
         drawSVGGraph();
         function createControlBox() {
@@ -12,7 +15,6 @@ var SVGOntologyGraph = (function () {
             input.id = 'search';
             input.placeholder = 'Search...';
             controlBox.appendChild(input);
-            var peopleCheckboxes = new Array();
             people.forEach(function (person) {
                 var divContainer = document.createElement('div');
                 divContainer.classList.add('person-checkbox');
@@ -21,6 +23,26 @@ var SVGOntologyGraph = (function () {
                 checkbox.type = 'checkbox';
                 checkbox.id = "checkbox-" + person.id;
                 divContainer.appendChild(checkbox);
+                checkbox.addEventListener('change', function (event) {
+                    if (checkbox.checked) {
+                        peopleToDisplay.push(person);
+                    }
+                    else {
+                        for (var i = 0; i < peopleToDisplay.length; i++) {
+                            if (peopleToDisplay[i].id == person.id) {
+                                peopleToDisplay.splice(i, 1);
+                            }
+                        }
+                    }
+                    relations.filter(function (relation) {
+                        var firstPersonInRelation = peopleToDisplay.filter(function (person) { return person.id == relation[0]; }).length > 0;
+                        var secondPersonInRelation = peopleToDisplay.filter(function (person) { return person.id == relation[1]; }).length > 0;
+                        if (firstPersonInRelation && secondPersonInRelation) {
+                            relationsToDisplay.push(relation);
+                        }
+                    });
+                    drawSVGGraph();
+                });
                 var label = document.createElement('label');
                 label.innerHTML = person.name;
                 label.htmlFor = checkbox.id;
@@ -30,22 +52,18 @@ var SVGOntologyGraph = (function () {
             document.getElementsByTagName('body')[0].appendChild(controlBox);
         }
         function drawSVGGraph() {
-            var graph;
             var isDragging = false;
             var draggingVertexId = null;
-            var peopleUri = 'sample-data/large-data/people.json';
-            var relationsUri = 'sample-data/large-data/relations.json';
             var rectPadding = 15;
-            var vertices = Array(people.length);
-            var edges = Array(relations.length);
-            people.forEach(function (person) {
+            var vertices = Array();
+            var edges = Array();
+            peopleToDisplay.forEach(function (person) {
                 vertices.push(new Vertex(person.id));
             });
-            relations.forEach(function (relation) {
-                var firstVertex = vertices.filter(function (v) { return v.id == relation[0]; })[0];
-                var secondVertex = vertices.filter(function (v) { return v.id == relation[1]; })[0];
-                var edge = new Edge(firstVertex, secondVertex);
-                edges.push(edge);
+            relationsToDisplay.forEach(function (relation) {
+                var vertex1 = vertices.filter(function (v) { return v.id == relation[0]; })[0];
+                var vertex2 = vertices.filter(function (v) { return v.id == relation[1]; })[0];
+                edges.push(new Edge(vertex1, vertex2));
             });
             graph = new DiGraph(vertices, edges);
             drawGraph();
@@ -66,8 +84,12 @@ var SVGOntologyGraph = (function () {
                 drawEdges(graph.edges);
                 function setSVGGroups() {
                     graph.vertices.forEach(function (vertex) {
+                        var elementId = "g-v-" + vertex.id;
+                        var oldGroup = document.getElementById(elementId);
+                        if (oldGroup)
+                            return;
                         var svgGroup = document.createElementNS(ns, 'g');
-                        svgGroup.id = "g-v-" + vertex.id;
+                        svgGroup.id = elementId;
                         svgElement.appendChild(svgGroup);
                     });
                 }
@@ -76,8 +98,12 @@ var SVGOntologyGraph = (function () {
                         return b[1] - a[1];
                     });
                     graph.vertices.forEach(function (vertex) {
-                        var person = people.filter(function (p) { return p.id == vertex.id; })[0];
+                        var person = peopleToDisplay.filter(function (p) { return p.id == vertex.id; })[0];
                         var svgGroup = document.getElementById("g-v-" + person.id);
+                        if (svgGroup.getElementsByTagName('rect').length > 0
+                            && svgGroup.getElementsByTagName('text')) {
+                            return;
+                        }
                         var x = Math.random() * svgWidth;
                         var y = Math.random() * svgHeight;
                         var textElement = document.createElementNS(ns, 'text');
@@ -197,6 +223,8 @@ var SVGOntologyGraph = (function () {
                         if (makeActive)
                             group.classList.add('active');
                         var lastLineIndex = svgElement.getElementsByTagName('line').length - 1;
+                        if (lastLineIndex = -1)
+                            lastLineIndex = 0;
                         group.appendChild(line);
                         group.appendChild(arrow);
                         svgElement.insertBefore(group, svgElement.childNodes[lastLineIndex]);
