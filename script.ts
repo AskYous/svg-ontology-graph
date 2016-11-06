@@ -16,6 +16,24 @@ class SVGOntologyGraph {
         const input = document.createElement('input');
         input.id = 'search';
         input.placeholder = 'Search...';
+        input.onkeyup = event => {
+          const query = input.value;
+          const peopleCheckBoxes = <NodeListOf<HTMLInputElement>> controlBox.getElementsByClassName('person-checkbox');
+          for(let i = 0; i < peopleCheckBoxes.length; i++){
+            const checkbox = peopleCheckBoxes[i];
+            const personId = Number(checkbox.id.split('-')[1]);
+            const checkBoxContainer = document.getElementById(`person-checkbox-${personId}`);
+            const person = people.filter(person => person.id == personId)[0];
+            if(query == ''){
+              checkBoxContainer.style.display = 'block';
+            }
+            if(person.name.toLowerCase().indexOf(query.toLowerCase()) == -1){
+              checkBoxContainer.style.display = 'none';
+            } else{
+              checkBoxContainer.style.display = 'block';
+            }
+          }
+        }
         controlBox.appendChild(input);
 
         { // Toggle check all checkbox
@@ -57,7 +75,7 @@ class SVGOntologyGraph {
 
         people.forEach(person => { // create checkboxes per person
           const divContainer = document.createElement('div'); // div container
-          divContainer.classList.add('person-checkbox');
+          divContainer.classList.add('person-checkbox-container');
           divContainer.id = `person-checkbox-${person.id}`;
 
           const checkbox = document.createElement('input'); // checkbox

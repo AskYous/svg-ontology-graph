@@ -14,6 +14,28 @@ var SVGOntologyGraph = (function () {
             var input = document.createElement('input');
             input.id = 'search';
             input.placeholder = 'Search...';
+            input.onkeyup = function (event) {
+                var query = input.value;
+                var peopleCheckBoxes = controlBox.getElementsByClassName('person-checkbox');
+                var _loop_1 = function (i) {
+                    var checkbox = peopleCheckBoxes[i];
+                    var personId = Number(checkbox.id.split('-')[1]);
+                    var checkBoxContainer = document.getElementById("person-checkbox-" + personId);
+                    var person = people.filter(function (person) { return person.id == personId; })[0];
+                    if (query == '') {
+                        checkBoxContainer.style.display = 'block';
+                    }
+                    if (person.name.toLowerCase().indexOf(query.toLowerCase()) == -1) {
+                        checkBoxContainer.style.display = 'none';
+                    }
+                    else {
+                        checkBoxContainer.style.display = 'block';
+                    }
+                };
+                for (var i = 0; i < peopleCheckBoxes.length; i++) {
+                    _loop_1(i);
+                }
+            };
             controlBox.appendChild(input);
             {
                 var toggleCheckAll = document.createElement('div');
@@ -49,7 +71,7 @@ var SVGOntologyGraph = (function () {
             }
             people.forEach(function (person) {
                 var divContainer = document.createElement('div');
-                divContainer.classList.add('person-checkbox');
+                divContainer.classList.add('person-checkbox-container');
                 divContainer.id = "person-checkbox-" + person.id;
                 var checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
