@@ -11,17 +11,24 @@ html, body{
 
 div#control-box{
   color: black;
-  height: 60%;
+  height: 90%;
   margin: 2%;
   padding: 10px;
   background-color: lightgray;
   position: absolute;
   top: 0;
   right: 0;
+  max-width: 250px;
+  overflow: auto;
 
   input#search{
     padding: 3px;
     margin-bottom: 10px;
+    width: 98%;
+  }
+
+  div#people-checkbox-container{
+    overflow-y: auto;
   }
 }
 svg {

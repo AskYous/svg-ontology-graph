@@ -69,6 +69,8 @@ var SVGOntologyGraph = (function () {
                 toggleCheckAll.appendChild(document.createElement('hr'));
                 controlBox.appendChild(toggleCheckAll);
             }
+            var peopleCheckboxContainer = document.createElement('div');
+            peopleCheckboxContainer.id = 'people-checkbox-container';
             people.forEach(function (person) {
                 var divContainer = document.createElement('div');
                 divContainer.classList.add('person-checkbox-container');
@@ -109,8 +111,9 @@ var SVGOntologyGraph = (function () {
                 label.innerHTML = person.name;
                 label.htmlFor = checkbox.id;
                 divContainer.appendChild(label);
-                controlBox.appendChild(divContainer);
+                peopleCheckboxContainer.appendChild(divContainer);
             });
+            controlBox.appendChild(peopleCheckboxContainer);
             document.getElementsByTagName('body')[0].appendChild(controlBox);
         }
         function deletePersonAndRelationsElements(person) {

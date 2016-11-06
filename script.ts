@@ -73,6 +73,9 @@ class SVGOntologyGraph {
           controlBox.appendChild(toggleCheckAll);
         }
 
+        const peopleCheckboxContainer = document.createElement('div');
+        peopleCheckboxContainer.id = 'people-checkbox-container';
+
         people.forEach(person => { // create checkboxes per person
           const divContainer = document.createElement('div'); // div container
           divContainer.classList.add('person-checkbox-container');
@@ -121,8 +124,10 @@ class SVGOntologyGraph {
           label.htmlFor = checkbox.id;
           divContainer.appendChild(label);
 
-          controlBox.appendChild(divContainer);
+          peopleCheckboxContainer.appendChild(divContainer);
         });
+
+        controlBox.appendChild(peopleCheckboxContainer);
 
         document.getElementsByTagName('body')[0].appendChild(controlBox);
       }
