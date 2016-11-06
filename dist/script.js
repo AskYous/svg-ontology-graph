@@ -66,7 +66,6 @@ var SVGOntologyGraph = (function () {
                 toggleCheckAll.id = 'toggle-check-all';
                 toggleCheckAll.appendChild(checkbox_1);
                 toggleCheckAll.appendChild(label);
-                toggleCheckAll.appendChild(document.createElement('hr'));
                 controlBox.appendChild(toggleCheckAll);
             }
             var peopleCheckboxContainer = document.createElement('div');

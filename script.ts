@@ -68,7 +68,6 @@ class SVGOntologyGraph {
           toggleCheckAll.id = 'toggle-check-all';
           toggleCheckAll.appendChild(checkbox);
           toggleCheckAll.appendChild(label);
-          toggleCheckAll.appendChild(document.createElement('hr'));
 
           controlBox.appendChild(toggleCheckAll);
         }
