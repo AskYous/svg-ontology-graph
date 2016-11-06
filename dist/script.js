@@ -15,6 +15,35 @@ var SVGOntologyGraph = (function () {
             input.id = 'search';
             input.placeholder = 'Search...';
             controlBox.appendChild(input);
+            {
+                var toggleCheckAll = document.createElement('div');
+                var checkbox_1 = document.createElement('input');
+                checkbox_1.type = 'checkbox';
+                checkbox_1.id = 'toggle-check-all-checkbox';
+                checkbox_1.addEventListener('change', function (event) {
+                    var peopleCheckBoxes = controlBox.getElementsByClassName('person-checkbox');
+                    var alertMessage;
+                    if (checkbox_1.checked) {
+                        alertMessage = 'This will put all people on the screen. Continue?';
+                    }
+                    else {
+                        alertMessage = 'This will remove all people from the screen. Continue?';
+                    }
+                    if (confirm(alertMessage)) {
+                        for (var i = 0; i < peopleCheckBoxes.length; i++) {
+                            peopleCheckBoxes[i].checked = checkbox_1.checked;
+                        }
+                    }
+                });
+                var label = document.createElement('label');
+                label.innerHTML = 'Toggle all';
+                label.htmlFor = checkbox_1.id;
+                toggleCheckAll.id = 'toggle-check-all';
+                toggleCheckAll.appendChild(checkbox_1);
+                toggleCheckAll.appendChild(label);
+                toggleCheckAll.appendChild(document.createElement('hr'));
+                controlBox.appendChild(toggleCheckAll);
+            }
             people.forEach(function (person) {
                 var divContainer = document.createElement('div');
                 divContainer.classList.add('person-checkbox');
@@ -22,6 +51,7 @@ var SVGOntologyGraph = (function () {
                 var checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = "checkbox-" + person.id;
+                checkbox.classList.add('person-checkbox');
                 divContainer.appendChild(checkbox);
                 checkbox.addEventListener('change', function (event) {
                     if (checkbox.checked) {

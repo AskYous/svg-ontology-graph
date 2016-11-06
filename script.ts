@@ -18,6 +18,40 @@ class SVGOntologyGraph {
         input.placeholder = 'Search...';
         controlBox.appendChild(input);
 
+        { // Toggle check all checkbox
+          const toggleCheckAll = document.createElement('div');
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = 'toggle-check-all-checkbox';
+
+          checkbox.addEventListener('change', event => {
+              const peopleCheckBoxes = controlBox.getElementsByClassName('person-checkbox');
+              let alertMessage: string;
+              if(checkbox.checked){
+                alertMessage = 'This will put all people on the screen. Continue?';
+              } else {
+                alertMessage = 'This will remove all people from the screen. Continue?'
+              }
+              if(confirm(alertMessage)){
+                for(let i = 0; i < peopleCheckBoxes.length; i++){
+                  peopleCheckBoxes[i].checked = checkbox.checked;
+                }
+              }
+          });
+
+          const label = document.createElement('label');
+          label.innerHTML = 'Toggle all';
+          label.htmlFor = checkbox.id;
+
+          toggleCheckAll.id = 'toggle-check-all';
+          toggleCheckAll.appendChild(checkbox);
+          toggleCheckAll.appendChild(label);
+          toggleCheckAll.appendChild(document.createElement('hr'));
+
+          controlBox.appendChild(toggleCheckAll);
+        }
+
         people.forEach(person => { // create checkboxes per person
           const divContainer = document.createElement('div'); // div container
           divContainer.classList.add('person-checkbox');
@@ -26,6 +60,7 @@ class SVGOntologyGraph {
           const checkbox = document.createElement('input'); // checkbox
           checkbox.type = 'checkbox'
           checkbox.id = `checkbox-${person.id}`;
+          checkbox.classList.add('person-checkbox')
           divContainer.appendChild(checkbox);
 
           checkbox.addEventListener('change', event => { // on checkbox click
