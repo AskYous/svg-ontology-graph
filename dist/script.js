@@ -12,6 +12,21 @@ var SVGOntologyGraph = (function () {
             input.id = 'search';
             input.placeholder = 'Search...';
             controlBox.appendChild(input);
+            var peopleCheckboxes = new Array();
+            people.forEach(function (person) {
+                var divContainer = document.createElement('div');
+                divContainer.classList.add('person-checkbox');
+                divContainer.id = "person-checkbox-" + person.id;
+                var checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = "checkbox-" + person.id;
+                divContainer.appendChild(checkbox);
+                var label = document.createElement('label');
+                label.innerHTML = person.name;
+                label.htmlFor = checkbox.id;
+                divContainer.appendChild(label);
+                controlBox.appendChild(divContainer);
+            });
             document.getElementsByTagName('body')[0].appendChild(controlBox);
         }
         function drawSVGGraph() {

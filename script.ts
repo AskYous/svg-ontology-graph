@@ -14,6 +14,26 @@ class SVGOntologyGraph {
         input.placeholder = 'Search...';
         controlBox.appendChild(input);
 
+        const peopleCheckboxes = new Array<HTMLDivElement>();
+
+        people.forEach(person => {
+          const divContainer = document.createElement('div'); // div container
+          divContainer.classList.add('person-checkbox');
+          divContainer.id = `person-checkbox-${person.id}`;
+
+          const checkbox = document.createElement('input'); // checkbox
+          checkbox.type = 'checkbox'
+          checkbox.id = `checkbox-${person.id}`;
+          divContainer.appendChild(checkbox);
+
+          const label = document.createElement('label'); // label
+          label.innerHTML = person.name;
+          label.htmlFor = checkbox.id;
+          divContainer.appendChild(label);
+
+          controlBox.appendChild(divContainer);
+        });
+
         document.getElementsByTagName('body')[0].appendChild(controlBox);
       }
 
