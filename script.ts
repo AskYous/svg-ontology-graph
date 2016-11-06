@@ -3,6 +3,7 @@ class SVGOntologyGraph {
     constructor(private people: Array<Person>, private relations: Array<Array<number>>, private svgElement: HTMLElement) {
       const peopleToDisplay = new Array<Person>(); // the people that will display on the screen;
       const relationsToDisplay = new Array<Array<number>>(); // the lines that will display on the screen;
+
       let graph: DiGraph;
 
       createControlBox();
@@ -33,7 +34,16 @@ class SVGOntologyGraph {
             } else { // remove the person from the array
               for(let i = 0; i < peopleToDisplay.length; i++){
                 if(peopleToDisplay[i].id == person.id){
+
+                  deletePersonAndRelationsElements(peopleToDisplay[i]);
                   peopleToDisplay.splice(i, 1);
+
+                  relationsToDisplay.filter(relation => { // remove relations
+                    return relation[0] == person.id || relation[1] == person.id;
+                  }).forEach(relation => {
+                    const index = relationsToDisplay.indexOf(relation);
+                    relationsToDisplay.splice(index, 1);
+                  });
                 }
               }
             }
@@ -59,6 +69,23 @@ class SVGOntologyGraph {
         });
 
         document.getElementsByTagName('body')[0].appendChild(controlBox);
+      }
+
+      function deletePersonAndRelationsElements(person: Person){
+        const group = document.getElementById(`g-v-${person.id}`);
+        graph.edges.filter(edge => {
+          return edge.vertex1.id == person.id || edge.vertex2.id == person.id;
+        }).forEach((edge, i) => {
+          const edge1 = document.getElementById(`g-e-${edge.vertex1.id}-${edge.vertex2.id}`);
+          const edge2 = document.getElementById(`g-e-${edge.vertex2.id}-${edge.vertex1.id}`);
+
+          // remove lines
+          if(edge1) edge1.parentNode.removeChild(edge1);
+          if(edge2) edge2.parentNode.removeChild(edge2);
+        });
+
+        group.parentNode.removeChild(group);
+
       }
 
       function drawSVGGraph(){

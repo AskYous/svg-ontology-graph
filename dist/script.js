@@ -30,7 +30,14 @@ var SVGOntologyGraph = (function () {
                     else {
                         for (var i = 0; i < peopleToDisplay.length; i++) {
                             if (peopleToDisplay[i].id == person.id) {
+                                deletePersonAndRelationsElements(peopleToDisplay[i]);
                                 peopleToDisplay.splice(i, 1);
+                                relationsToDisplay.filter(function (relation) {
+                                    return relation[0] == person.id || relation[1] == person.id;
+                                }).forEach(function (relation) {
+                                    var index = relationsToDisplay.indexOf(relation);
+                                    relationsToDisplay.splice(index, 1);
+                                });
                             }
                         }
                     }
@@ -50,6 +57,20 @@ var SVGOntologyGraph = (function () {
                 controlBox.appendChild(divContainer);
             });
             document.getElementsByTagName('body')[0].appendChild(controlBox);
+        }
+        function deletePersonAndRelationsElements(person) {
+            var group = document.getElementById("g-v-" + person.id);
+            graph.edges.filter(function (edge) {
+                return edge.vertex1.id == person.id || edge.vertex2.id == person.id;
+            }).forEach(function (edge, i) {
+                var edge1 = document.getElementById("g-e-" + edge.vertex1.id + "-" + edge.vertex2.id);
+                var edge2 = document.getElementById("g-e-" + edge.vertex2.id + "-" + edge.vertex1.id);
+                if (edge1)
+                    edge1.parentNode.removeChild(edge1);
+                if (edge2)
+                    edge2.parentNode.removeChild(edge2);
+            });
+            group.parentNode.removeChild(group);
         }
         function drawSVGGraph() {
             var isDragging = false;
