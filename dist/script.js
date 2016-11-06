@@ -20,7 +20,7 @@ var SVGOntologyGraph = (function () {
                 var checkbox_1 = document.createElement('input');
                 checkbox_1.type = 'checkbox';
                 checkbox_1.id = 'toggle-check-all-checkbox';
-                checkbox_1.addEventListener('change', function (event) {
+                checkbox_1.onchange = function (event) {
                     var peopleCheckBoxes = controlBox.getElementsByClassName('person-checkbox');
                     var alertMessage;
                     if (checkbox_1.checked) {
@@ -31,10 +31,13 @@ var SVGOntologyGraph = (function () {
                     }
                     if (confirm(alertMessage)) {
                         for (var i = 0; i < peopleCheckBoxes.length; i++) {
-                            peopleCheckBoxes[i].checked = checkbox_1.checked;
+                            var personChecked = peopleCheckBoxes[i]['checked'];
+                            if (personChecked != checkbox_1.checked) {
+                                peopleCheckBoxes[i].click();
+                            }
                         }
                     }
-                });
+                };
                 var label = document.createElement('label');
                 label.innerHTML = 'Toggle all';
                 label.htmlFor = checkbox_1.id;
@@ -53,7 +56,7 @@ var SVGOntologyGraph = (function () {
                 checkbox.id = "checkbox-" + person.id;
                 checkbox.classList.add('person-checkbox');
                 divContainer.appendChild(checkbox);
-                checkbox.addEventListener('change', function (event) {
+                checkbox.onchange = function (event) {
                     if (checkbox.checked) {
                         peopleToDisplay.push(person);
                     }
@@ -79,7 +82,7 @@ var SVGOntologyGraph = (function () {
                         }
                     });
                     drawSVGGraph();
-                });
+                };
                 var label = document.createElement('label');
                 label.innerHTML = person.name;
                 label.htmlFor = checkbox.id;

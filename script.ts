@@ -25,8 +25,8 @@ class SVGOntologyGraph {
           checkbox.type = 'checkbox';
           checkbox.id = 'toggle-check-all-checkbox';
 
-          checkbox.addEventListener('change', event => {
-              const peopleCheckBoxes = controlBox.getElementsByClassName('person-checkbox');
+          checkbox.onchange = event => {
+              const peopleCheckBoxes = <NodeListOf<HTMLInputElement>> controlBox.getElementsByClassName('person-checkbox');
               let alertMessage: string;
               if(checkbox.checked){
                 alertMessage = 'This will put all people on the screen. Continue?';
@@ -35,10 +35,13 @@ class SVGOntologyGraph {
               }
               if(confirm(alertMessage)){
                 for(let i = 0; i < peopleCheckBoxes.length; i++){
-                  peopleCheckBoxes[i].checked = checkbox.checked;
+                  const personChecked = peopleCheckBoxes[i]['checked'];
+                  if(personChecked != checkbox.checked){
+                    peopleCheckBoxes[i].click();
+                  }
                 }
               }
-          });
+          };
 
           const label = document.createElement('label');
           label.innerHTML = 'Toggle all';
@@ -63,7 +66,7 @@ class SVGOntologyGraph {
           checkbox.classList.add('person-checkbox')
           divContainer.appendChild(checkbox);
 
-          checkbox.addEventListener('change', event => { // on checkbox click
+          checkbox.onchange = event => { // on checkbox click
             if(checkbox.checked){
               peopleToDisplay.push(person);
             } else { // remove the person from the array
@@ -93,7 +96,7 @@ class SVGOntologyGraph {
             });
 
             drawSVGGraph();
-          });
+          };
 
           const label = document.createElement('label'); // label
           label.innerHTML = person.name;
@@ -206,7 +209,7 @@ class SVGOntologyGraph {
                     const x = Math.random() * svgWidth;
                     const y = Math.random() * svgHeight;
 
-                    const textElement = <HTMLElement>document.createElementNS(ns, 'text');
+                    const textElement = document.createElementNS(ns, 'text');
                     textElement.innerHTML = person.name;
                     textElement.setAttribute('x', String(x));
                     textElement.setAttribute('y', String(y));
@@ -214,7 +217,7 @@ class SVGOntologyGraph {
                     svgGroup.appendChild(textElement);
 
                     // Circle
-                    const rectElement = <HTMLElement>document.createElementNS(ns, 'rect');
+                    const rectElement = document.createElementNS(ns, 'rect');
                     rectElement.setAttribute('x', String(x - (rectPadding / 2)));
                     rectElement.setAttribute('y', String(y - (rectPadding / 2)));
                     rectElement.setAttribute('width', String(textElement.getBoundingClientRect().width + rectPadding));
@@ -338,9 +341,9 @@ class SVGOntologyGraph {
                     }
 
                     // The edge group
-                    let group = <HTMLElement>document.createElementNS(ns, 'g');
-                    let line = <HTMLElement>document.createElementNS(ns, 'line');
-                    let arrow = <HTMLElement>document.createElementNS(ns, 'path');
+                    let group = document.createElementNS(ns, 'g');
+                    let line = document.createElementNS(ns, 'line');
+                    let arrow = document.createElementNS(ns, 'path');
 
                     // Vertex SVG Elements
                     let vertexGroup1 = <HTMLElement>document.getElementById(`g-v-${edge.vertex1.id}`);
