@@ -9,6 +9,31 @@ class SVGOntologyGraph {
       createControlBox();
       drawSVGGraph();
 
+      function getRelations(person: Person): Array<Array<number>> {
+        let peopleIds = [];
+        let neighbors = new Array<Person>();
+
+        return relations. // get all relations
+        filter(relation => relation.filter(pId => pId == person.id).length > 0); // the ones with the person
+      }
+
+      function getAdjacentPeople(person: Person): Array<Person> {
+        let peopleIds = [];
+        let neighbors = new Array<Person>();
+
+        getRelations(person)
+        .forEach(relation => { // add the other person (AKA neighbor) to the array
+          let neighborId = relation[0];
+          if(relation[0] == person.id) neighborId = relation[1];
+
+          const neighbor = people.filter(person => person.id == neighborId)[0];
+          neighbors.push(neighbor);
+        });
+
+        console.log(person, neighbors);
+        return neighbors;
+      }
+
       function createControlBox(){
         const controlBox = document.createElement('div'); // the control box
         controlBox.id = 'control-box';
@@ -122,6 +147,26 @@ class SVGOntologyGraph {
           label.innerHTML = person.name;
           label.htmlFor = checkbox.id;
           divContainer.appendChild(label);
+
+          const moreButton = document.createElement('button');
+          moreButton.classList.add('more-button');
+          moreButton.innerHTML = '+ neighbors';
+          moreButton.onclick = event => {
+            if(peopleToDisplay.indexOf(person) == -1) peopleToDisplay.push(person);
+            document.getElementById(`checkbox-${person.id}`)['checked'] = true;
+
+            getAdjacentPeople(person).forEach((neighbor: Person) =>  {
+              if(peopleToDisplay.indexOf(neighbor) == -1) peopleToDisplay.push(neighbor); // add neighbor if not already in list
+              document.getElementById(`checkbox-${neighbor.id}`)['checked'] = true;
+            });
+
+            getRelations(person).forEach(relation => {
+              if(relationsToDisplay.indexOf(relation) == -1) relationsToDisplay.push(relation);
+            });
+
+            drawSVGGraph();
+          }
+          divContainer.appendChild(moreButton);
 
           peopleCheckboxContainer.appendChild(divContainer);
         });
