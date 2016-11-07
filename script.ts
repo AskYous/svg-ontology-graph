@@ -9,12 +9,19 @@ class SVGOntologyGraph {
       createControlBox();
       drawSVGGraph();
 
+      function getRelations(person: Person): Array<Array<number>> {
+        let peopleIds = [];
+        let neighbors = new Array<Person>();
+
+        return relations. // get all relations
+        filter(relation => relation.filter(pId => pId == person.id).length > 0); // the ones with the person
+      }
+
       function getAdjacentPeople(person: Person): Array<Person> {
         let peopleIds = [];
         let neighbors = new Array<Person>();
 
-        relations. // get all relations
-        filter(relation => relation.filter(pId => pId == person.id).length > 0) // the ones with the person
+        getRelations(person)
         .forEach(relation => { // add the other person (AKA neighbor) to the array
           let neighborId = relation[0];
           if(relation[0] == person.id) neighborId = relation[1];
@@ -145,9 +152,19 @@ class SVGOntologyGraph {
           moreButton.classList.add('more-button');
           moreButton.innerHTML = '+ neighbors';
           moreButton.onclick = event => {
-            getAdjacentPeople(person).forEach((person: Person) =>  {
+            if(peopleToDisplay.indexOf(person) == -1) peopleToDisplay.push(person);
+            document.getElementById(`checkbox-${person.id}`)['checked'] = true;
 
-            })
+            getAdjacentPeople(person).forEach((neighbor: Person) =>  {
+              if(peopleToDisplay.indexOf(neighbor) == -1) peopleToDisplay.push(neighbor); // add neighbor if not already in list
+              document.getElementById(`checkbox-${neighbor.id}`)['checked'] = true;
+            });
+
+            getRelations(person).forEach(relation => {
+              if(relationsToDisplay.indexOf(relation) == -1) relationsToDisplay.push(relation);
+            });
+
+            drawSVGGraph();
           }
           divContainer.appendChild(moreButton);
 

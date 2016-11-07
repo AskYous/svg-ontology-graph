@@ -8,11 +8,16 @@ var SVGOntologyGraph = (function () {
         var graph;
         createControlBox();
         drawSVGGraph();
+        function getRelations(person) {
+            var peopleIds = [];
+            var neighbors = new Array();
+            return relations.
+                filter(function (relation) { return relation.filter(function (pId) { return pId == person.id; }).length > 0; });
+        }
         function getAdjacentPeople(person) {
             var peopleIds = [];
             var neighbors = new Array();
-            relations.
-                filter(function (relation) { return relation.filter(function (pId) { return pId == person.id; }).length > 0; })
+            getRelations(person)
                 .forEach(function (relation) {
                 var neighborId = relation[0];
                 if (relation[0] == person.id)
@@ -129,8 +134,19 @@ var SVGOntologyGraph = (function () {
                 moreButton.classList.add('more-button');
                 moreButton.innerHTML = '+ neighbors';
                 moreButton.onclick = function (event) {
-                    getAdjacentPeople(person).forEach(function (person) {
+                    if (peopleToDisplay.indexOf(person) == -1)
+                        peopleToDisplay.push(person);
+                    document.getElementById("checkbox-" + person.id)['checked'] = true;
+                    getAdjacentPeople(person).forEach(function (neighbor) {
+                        if (peopleToDisplay.indexOf(neighbor) == -1)
+                            peopleToDisplay.push(neighbor);
+                        document.getElementById("checkbox-" + neighbor.id)['checked'] = true;
                     });
+                    getRelations(person).forEach(function (relation) {
+                        if (relationsToDisplay.indexOf(relation) == -1)
+                            relationsToDisplay.push(relation);
+                    });
+                    drawSVGGraph();
                 };
                 divContainer.appendChild(moreButton);
                 peopleCheckboxContainer.appendChild(divContainer);
