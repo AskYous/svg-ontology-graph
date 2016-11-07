@@ -9,6 +9,24 @@ class SVGOntologyGraph {
       createControlBox();
       drawSVGGraph();
 
+      function getAdjacentPeople(person: Person): Array<Person> {
+        let peopleIds = [];
+        let neighbors = new Array<Person>();
+
+        relations. // get all relations
+        filter(relation => relation.filter(pId => pId == person.id).length > 0) // the ones with the person
+        .forEach(relation => { // add the other person (AKA neighbor) to the array
+          let neighborId = relation[0];
+          if(relation[0] == person.id) neighborId = relation[1];
+
+          const neighbor = people.filter(person => person.id == neighborId)[0];
+          neighbors.push(neighbor);
+        });
+
+        console.log(person, neighbors);
+        return neighbors;
+      }
+
       function createControlBox(){
         const controlBox = document.createElement('div'); // the control box
         controlBox.id = 'control-box';
@@ -126,6 +144,11 @@ class SVGOntologyGraph {
           const moreButton = document.createElement('button');
           moreButton.classList.add('more-button');
           moreButton.innerHTML = '+ neighbors';
+          moreButton.onclick = event => {
+            getAdjacentPeople(person).forEach((person: Person) =>  {
+
+            })
+          }
           divContainer.appendChild(moreButton);
 
           peopleCheckboxContainer.appendChild(divContainer);

@@ -8,6 +8,21 @@ var SVGOntologyGraph = (function () {
         var graph;
         createControlBox();
         drawSVGGraph();
+        function getAdjacentPeople(person) {
+            var peopleIds = [];
+            var neighbors = new Array();
+            relations.
+                filter(function (relation) { return relation.filter(function (pId) { return pId == person.id; }).length > 0; })
+                .forEach(function (relation) {
+                var neighborId = relation[0];
+                if (relation[0] == person.id)
+                    neighborId = relation[1];
+                var neighbor = people.filter(function (person) { return person.id == neighborId; })[0];
+                neighbors.push(neighbor);
+            });
+            console.log(person, neighbors);
+            return neighbors;
+        }
         function createControlBox() {
             var controlBox = document.createElement('div');
             controlBox.id = 'control-box';
@@ -113,6 +128,10 @@ var SVGOntologyGraph = (function () {
                 var moreButton = document.createElement('button');
                 moreButton.classList.add('more-button');
                 moreButton.innerHTML = '+ neighbors';
+                moreButton.onclick = function (event) {
+                    getAdjacentPeople(person).forEach(function (person) {
+                    });
+                };
                 divContainer.appendChild(moreButton);
                 peopleCheckboxContainer.appendChild(divContainer);
             });
