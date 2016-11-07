@@ -123,6 +123,11 @@ class SVGOntologyGraph {
           label.htmlFor = checkbox.id;
           divContainer.appendChild(label);
 
+          const moreButton = document.createElement('button');
+          moreButton.classList.add('more-button');
+          moreButton.innerHTML = '+ neighbors';
+          divContainer.appendChild(moreButton);
+
           peopleCheckboxContainer.appendChild(divContainer);
         });
 
