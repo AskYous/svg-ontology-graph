@@ -130,25 +130,28 @@ var SVGOntologyGraph = (function () {
                 label.innerHTML = person.name;
                 label.htmlFor = checkbox.id;
                 divContainer.appendChild(label);
-                var moreButton = document.createElement('button');
-                moreButton.classList.add('more-button');
-                moreButton.innerHTML = '+ neighbors';
-                moreButton.onclick = function (event) {
+                var neighborsButton = document.createElement('button');
+                neighborsButton.classList.add('more-button');
+                neighborsButton.innerHTML = '+ neighbors';
+                neighborsButton.onclick = function (event) {
                     if (peopleToDisplay.indexOf(person) == -1)
                         peopleToDisplay.push(person);
                     document.getElementById("checkbox-" + person.id)['checked'] = true;
-                    getAdjacentPeople(person).forEach(function (neighbor) {
+                    var adjacentPeople = getAdjacentPeople(person);
+                    adjacentPeople.forEach(function (neighbor) {
                         if (peopleToDisplay.indexOf(neighbor) == -1)
                             peopleToDisplay.push(neighbor);
                         document.getElementById("checkbox-" + neighbor.id)['checked'] = true;
                     });
-                    getRelations(person).forEach(function (relation) {
-                        if (relationsToDisplay.indexOf(relation) == -1)
-                            relationsToDisplay.push(relation);
+                    adjacentPeople.forEach(function (person) {
+                        getRelations(person).forEach(function (relation) {
+                            if (relationsToDisplay.indexOf(relation) == -1)
+                                relationsToDisplay.push(relation);
+                        });
                     });
                     drawSVGGraph();
                 };
-                divContainer.appendChild(moreButton);
+                divContainer.appendChild(neighborsButton);
                 peopleCheckboxContainer.appendChild(divContainer);
             });
             controlBox.appendChild(peopleCheckboxContainer);
@@ -180,7 +183,12 @@ var SVGOntologyGraph = (function () {
             relationsToDisplay.forEach(function (relation) {
                 var vertex1 = vertices.filter(function (v) { return v.id == relation[0]; })[0];
                 var vertex2 = vertices.filter(function (v) { return v.id == relation[1]; })[0];
-                edges.push(new Edge(vertex1, vertex2));
+                if (!vertex1 || !vertex2) {
+                    console.warn("Can't draw edge " + relation + "! 1 of the vertices doesn't exist! Skipping...");
+                }
+                else {
+                    edges.push(new Edge(vertex1, vertex2));
+                }
             });
             graph = new DiGraph(vertices, edges);
             drawGraph();
