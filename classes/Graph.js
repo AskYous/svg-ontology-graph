@@ -1,4 +1,4 @@
-export class Graph {
+module.exports = class Graph {
     /**
      * 
      * @param {Vertex} vertices a list of vertices
