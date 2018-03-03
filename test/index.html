@@ -5,15 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="/graph.js" rel="preload"></script>
-    <script rel="preload">
-        graph(document.querySelector('.container'))
+    <script type="module">
+        import * as Vertex from "./Vertex.js";
+        import * as Edge from "./Edge.js";
+        import * as Graph from "./Graph.js";
+        import * as sampleData from "./sample-data.js";
+
+        const vertices = sampleData.vertices.map(v => new Vertex(v.id, v.data));
+        const edges = sampleData.edges
+            .map(e => new Edge(
+                vertices.find(v => v.id == e[0]),
+                vertices.find(v => v.id == e[1])
+            ));
+
+        /** the container that holds the graph */
+        const container = document.querySelector('.container');
+
+        graph(container, new Graph());
     </script>
-    <title>Document</title>
 </head>
 
 <body>
-    <div id="container"></div>
+    <div id="container">I am a container</div>
 </body>
 
 </html>

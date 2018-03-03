@@ -1,3 +1,5 @@
+const Vertex = require("./Vertex");
+const Edge = require("./Edge");
 module.exports = class Graph {
     /**
      * 
