@@ -44,10 +44,11 @@ export class Options {
  */
 export function SVGGraph(container, graph, options) {
     const XML_NAMESPACE = "http://www.w3.org/2000/svg";
-    const VERTEX_WIDTH = container.getBoundingClientRect().width;
-    const VERTEX_HEIGHT = container.getBoundingClientRect().width;
+    const GRAPH_WIDTH = container.getBoundingClientRect().width;
+    const GRAPH_HEIGHT = container.getBoundingClientRect().width;
     const VERTEX_PADDING = 8;
     const CHAR_WIDTH = 15;
+    const VERTEX_HEIGHT = 15;
 
     /** The SVG Element */
     const svg = document.createElementNS(XML_NAMESPACE, "svg");
@@ -70,9 +71,9 @@ export function SVGGraph(container, graph, options) {
         /* vertex width without padding */
         const width = CHAR_WIDTH * v.name.length;
         /* vertex x location (from its upper left)*/
-        const x = Math.random() * VERTEX_WIDTH;
+        const x = Math.random() * GRAPH_WIDTH;
         /* vertex y location (from its upper left)*/
-        const y = Math.random() * VERTEX_HEIGHT;
+        const y = Math.random() * GRAPH_HEIGHT;
 
         // save some information
         group.classList.add("vertex");
@@ -107,12 +108,14 @@ export function SVGGraph(container, graph, options) {
         const v2 = vertices
             .find(v => v.dataset.vertexId == e.vertex2.id)
             .querySelector("rect");
-        const x1 = v1.style.x;
-        const y1 = v1.style.y;
-        const x2 = v2.style.x;
-        const y2 = v2.style.y;
+        const w1 = v1.getBoundingClientRect().width;
+        const w2 = v2.getBoundingClientRect().width;
+        const x1 = Number(v1.style.x) + (w1 / 2) + VERTEX_PADDING;
+        const y1 = Number(v1.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
+        const x2 = Number(v2.style.x) + (w1 / 2) + VERTEX_PADDING;
+        const y2 = Number(v2.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
 
-        svg.appendChild(path);
+        svg.insertBefore(path, svg.firstChild);
         path.classList.add("edge");
         path.setAttribute("d", `
             M${x1},${y1}
