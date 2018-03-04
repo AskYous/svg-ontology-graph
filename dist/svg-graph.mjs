@@ -21,15 +21,21 @@ export class Graph {
         this.edges = edges;
     }
 }
+export class Options {
+    constructor() {
+
+    }
+}
 /**
  * This converts a graph (as understood in computer science) to a visible graph using SVG.
  * @param {HTMLElement} container an HTML Element to contain the graph
  * @param {Graph} graph The graph
+ * @param {Options} options the options for the graph
  */
 export function SVGGraph(container, graph, options) {
     const XML_NAMESPACE = "http://www.w3.org/2000/svg";
-    const WIDTH = 500;
-    const HEIGHT = 500;
+    const WIDTH = container.getBoundingClientRect().width;
+    const HEIGHT = container.getBoundingClientRect().width;
 
     /** The SVG Element */
     const svg = document.createElementNS(XML_NAMESPACE, "svg");
@@ -39,8 +45,6 @@ export function SVGGraph(container, graph, options) {
     const edges = [];
 
     svg.classList.add("svg-graph");
-    svg.style.width = `${WIDTH}px`;
-    svg.style.height = `${HEIGHT}px`;
     container.appendChild(svg);
 
     // create vertex elements

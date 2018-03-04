@@ -5,6 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/svg-graph.css">
+    <style>
+        #container,
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+        }
+
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
     <script type="module">
         import * as SVGGraph from "/svg-graph.mjs";
         import * as sampleData from "./sample-data.mjs";
@@ -24,7 +39,7 @@
 </head>
 
 <body>
-    <div id="container">I am a container</div>
+    <div id="container"></div>
 </body>
 
 </html>
