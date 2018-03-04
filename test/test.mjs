@@ -1,7 +1,5 @@
 
-import Vertex from "../dist/Vertex";
-import Edge from "../dist/Edge";
-import Graph from "../dist/Graph";
+import * as SVGGraph from "../dist/svg-graph.mjs";
 import * as SampleData from "./sample-data";
 
 // tools
@@ -14,14 +12,16 @@ const app = express();
 
 // data
 const __dirname = path.resolve(path.dirname(''));
-const vertices = SampleData.vertices.map(v => new Vertex(v.id, v.data));
+const vertices = SampleData.vertices.map(v => new SVGGraph.Vertex(v.id, v.data));
 const edges = SampleData.edges
-    .map(e => new Edge(
+    .map(e => new SVGGraph.Edge(
         vertices.find(v => v.id == e[0]),
         vertices.find(v => v.id == e[1])
     ));
 
 // serve index.html in a web server
+app.get('/', (req, res) => res.sendFile(`${__dirname}/test/index.html`));
+
 app.get('/', (req, res) => res.sendFile(`${__dirname}/test/index.html`));
 
 // serve sample-data.js
@@ -43,9 +43,11 @@ app.listen(3000, async () => {
     /** @type{HTMLElement[]} */
     let EdgeElements;
 
+    // log the browser's console logs
+    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+
     // throw errors on if the browser throws an error
     page.on('pageerror', msg => { throw new Error(msg); });
-
     // go go localhost:3000
     await page.goto("http://localhost:3000/", { "waitUntil": "networkidle2" });
 

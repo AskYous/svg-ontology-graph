@@ -6,22 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script type="module">
-        import * as Vertex from "./Vertex.mjs";
-        import * as Edge from "./Edge.mjs";
-        import * as Graph from "./Graph.mjs";
+        import * as SVGGraph from "/svg-graph.mjs";
         import * as sampleData from "./sample-data.mjs";
 
-        const vertices = sampleData.vertices.map(v => new Vertex(v.id, v.data));
+        const vertices = sampleData.vertices.map(v => new SVGGraph.Vertex(v.id, v.data));
         const edges = sampleData.edges
-            .map(e => new Edge(
+            .map(e => new SVGGraph.Edge(
                 vertices.find(v => v.id == e[0]),
                 vertices.find(v => v.id == e[1])
             ));
 
-        /** the container that holds the graph */
-        const container = document.querySelector('#container');
-
-        graph(container, new Graph());
+        SVGGraph.SVGGraph(
+            document.querySelector('#container'),
+            new SVGGraph.Graph(),
+        );
     </script>
 </head>
 
