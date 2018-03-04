@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node ./test/test.js"
+    "test": "node --experimental-modules test/test.mjs",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && mkdir dist && babel src -s -d dist",
+    "production": "npm build && node bin/production"
   },
   "repository": {
     "type": "git",

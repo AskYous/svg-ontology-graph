@@ -1,6 +1,6 @@
-const Vertex = require("./Vertex");
-const Edge = require("./Edge");
-module.exports = class Graph {
+import * as Vertex from "./Vertex";
+import * as Edge from "./Edge";
+export default class Graph {
     /**
      * 
      * @param {Vertex} vertices a list of vertices
