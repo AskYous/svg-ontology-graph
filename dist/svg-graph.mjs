@@ -53,9 +53,9 @@ export function SVGGraph(container, graph, options) {
     /** The SVG Element */
     const svg = document.createElementNS(XML_NAMESPACE, "svg");
     /** The  vertex elements */
-    const vertices = [];
+    const vertices = {};
     /** The edge elements */
-    const edges = [];
+    const edges = {};
 
     svg.classList.add("svg-graph");
     container.appendChild(svg);
@@ -96,24 +96,25 @@ export function SVGGraph(container, graph, options) {
         rect.style.y = y;
 
         // save the vertex elements
-        vertices.push(group);
+        vertices[v.id] = group;
+
+        // prepare edges
+        edges[v.id] = {};
     }
 
     // create edge elements
     for (let e of graph.edges) {
         const path = document.createElementNS(XML_NAMESPACE, "path");
-        const v1 = vertices
-            .find(v => v.dataset.vertexId == e.vertex1.id)
-            .querySelector("rect");
-        const v2 = vertices
-            .find(v => v.dataset.vertexId == e.vertex2.id)
-            .querySelector("rect");
-        const w1 = v1.getBoundingClientRect().width;
-        const w2 = v2.getBoundingClientRect().width;
-        const x1 = Number(v1.style.x) + (w1 / 2) + VERTEX_PADDING;
-        const y1 = Number(v1.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
-        const x2 = Number(v2.style.x) + (w1 / 2) + VERTEX_PADDING;
-        const y2 = Number(v2.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
+        const r1 = vertices[e.vertex1.id].querySelector("rect");
+        const r2 = vertices[e.vertex2.id].querySelector("rect");
+
+        const w1 = r1.getBoundingClientRect().width;
+        const w2 = r2.getBoundingClientRect().width;
+
+        const x1 = Number(r1.style.x) + (w1 / 2) + VERTEX_PADDING;
+        const y1 = Number(r1.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
+        const x2 = Number(r2.style.x) + (w1 / 2) + VERTEX_PADDING;
+        const y2 = Number(r2.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
 
         svg.insertBefore(path, svg.firstChild);
         path.classList.add("edge");
@@ -121,5 +122,6 @@ export function SVGGraph(container, graph, options) {
             M${x1},${y1}
             C${x2},${y1} ${x1},${y2} ${x2},${y2}
         `);
+        edges[e.vertex1.id][e.vertex2.id] = path;
     }
 }
