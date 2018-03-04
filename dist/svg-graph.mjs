@@ -61,32 +61,40 @@ export function SVGGraph(container, graph, options) {
 
     // create vertex elements
     for (let v of graph.vertices) {
+        /* vertex container */
         const group = document.createElementNS(XML_NAMESPACE, "g");
+        /* vertex text */
         const text = document.createElementNS(XML_NAMESPACE, "text");
+        /* vertex background */
         const rect = document.createElementNS(XML_NAMESPACE, "rect");
-
+        /* vertex width without padding */
         const width = CHAR_WIDTH * v.name.length;
+        /* vertex x location (from its upper left)*/
         const x = Math.random() * VERTEX_WIDTH;
+        /* vertex y location (from its upper left)*/
         const y = Math.random() * VERTEX_HEIGHT;
 
+        // save some information
+        group.classList.add("vertex");
+        group.dataset.vertexId = v.id;
+
+        // append everything to each other
         group.appendChild(rect);
         group.appendChild(text);
         svg.appendChild(group);
 
-        // set text
+        // set text properties
         text.innerHTML = v.name;
-
-        // decorate rect
-        group.classList.add("vertex");
-        group.dataset.vertexId = v.id;
-        rect.style.width = `${text.getBoundingClientRect().width + (VERTEX_PADDING * 2)}px`;
-
-        rect.style.x = x;
-        rect.style.y = y;
         text.setAttribute("x", x + VERTEX_PADDING);
         text.setAttribute("y", y + VERTEX_PADDING);
         text.setAttribute("dy", 10);
 
+        // set rect properties
+        rect.style.width = `${text.getBoundingClientRect().width + (VERTEX_PADDING * 2)}px`;
+        rect.style.x = x;
+        rect.style.y = y;
+
+        // save the vertex elements
         vertices.push(group);
     }
 }

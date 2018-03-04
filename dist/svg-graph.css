@@ -12,7 +12,7 @@ svg.svg-graph{
 /* the vertex container */
 svg.svg-graph g.vertex rect{
     fill: blue;
-    height: calc(10px + (2*var(--vertex-padding)));
+    height: calc(10px + (2 * var(--vertex-padding)));
     padding: 10px;
 }
 
