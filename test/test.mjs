@@ -41,7 +41,7 @@ app.listen(3000, async () => {
     /** @type{HTMLElement[]} */
     let vertexElements;
     /** @type{HTMLElement[]} */
-    let EdgeElements;
+    let edgeElements;
 
     // log the browser's console logs
     page.on('console', msg => console.log('PAGE LOG:', msg.text()));
@@ -60,12 +60,12 @@ app.listen(3000, async () => {
 
     // assert there are vertices elements on the page
     vertexElements = await page.evaluate(() => document.querySelectorAll(".vertex"));
-    console.assert(vertexElements.length == vertices.length, "Vertices are missing on the page!");
+    console.assert(Object.keys(vertexElements).length == vertices.length, "Vertices are missing on the page!");
 
     // assert there are edges elements on the page
     edgeElements = await page.evaluate(() => document.querySelectorAll(".edge"));
-    console.assert(edgeElements.length == edges.length, "Edges are missing on the page!");
+    console.assert(Object.keys(edgeElements).length == edges.length, "Edges are missing on the page!");
 
     // done.
     await browser.close();
-})
+});
