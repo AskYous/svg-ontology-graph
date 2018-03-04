@@ -1,10 +1,20 @@
 export class Vertex {
-    constructor(id, data) {
+    /**
+     * 
+     * @param {number} id a unique identifier for the vertex
+     * @param {string} name the name to display for the vertex
+     */
+    constructor(id, name) {
         this.id = id;
-        this.data = data;
+        this.name = name;
     }
 }
 export class Edge {
+    /**
+     * 
+     * @param {Vertex} vertex1 the first vertex
+     * @param {Vertex} vertex2 the second vertex
+     */
     constructor(vertex1, vertex2) {
         this.vertex1 = vertex1;
         this.vertex2 = vertex2;
@@ -34,8 +44,10 @@ export class Options {
  */
 export function SVGGraph(container, graph, options) {
     const XML_NAMESPACE = "http://www.w3.org/2000/svg";
-    const WIDTH = container.getBoundingClientRect().width;
-    const HEIGHT = container.getBoundingClientRect().width;
+    const VERTEX_WIDTH = container.getBoundingClientRect().width;
+    const VERTEX_HEIGHT = container.getBoundingClientRect().width;
+    const VERTEX_PADDING = 8;
+    const CHAR_WIDTH = 15;
 
     /** The SVG Element */
     const svg = document.createElementNS(XML_NAMESPACE, "svg");
@@ -49,16 +61,32 @@ export function SVGGraph(container, graph, options) {
 
     // create vertex elements
     for (let v of graph.vertices) {
-        const element = document.createElementNS(XML_NAMESPACE, "text");
+        const group = document.createElementNS(XML_NAMESPACE, "g");
+        const text = document.createElementNS(XML_NAMESPACE, "text");
+        const rect = document.createElementNS(XML_NAMESPACE, "rect");
 
-        element.classList.add("vertex");
-        element.dataset.vertexId = v.id;
-        element.innerHTML = v.data;
+        const width = CHAR_WIDTH * v.name.length;
+        const x = Math.random() * VERTEX_WIDTH;
+        const y = Math.random() * VERTEX_HEIGHT;
 
-        element.setAttribute("x", Math.random() * WIDTH);
-        element.setAttribute("y", Math.random() * HEIGHT);
+        group.appendChild(rect);
+        group.appendChild(text);
+        svg.appendChild(group);
 
-        vertices.push(element);
-        svg.appendChild(element);
+        // set text
+        text.innerHTML = v.name;
+
+        // decorate rect
+        group.classList.add("vertex");
+        group.dataset.vertexId = v.id;
+        rect.style.width = `${text.getBoundingClientRect().width + (VERTEX_PADDING * 2)}px`;
+
+        rect.style.x = x;
+        rect.style.y = y;
+        text.setAttribute("x", x + VERTEX_PADDING);
+        text.setAttribute("y", y + VERTEX_PADDING);
+        text.setAttribute("dy", 10);
+
+        vertices.push(group);
     }
 }

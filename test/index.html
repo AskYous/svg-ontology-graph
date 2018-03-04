@@ -24,7 +24,7 @@
         import * as SVGGraph from "/svg-graph.mjs";
         import * as sampleData from "./sample-data.mjs";
 
-        const vertices = sampleData.vertices.map(v => new SVGGraph.Vertex(v.id, v.data));
+        const vertices = sampleData.vertices.map(v => new SVGGraph.Vertex(v.id, v.name));
         const edges = sampleData.edges
             .map(e => new SVGGraph.Edge(
                 vertices.find(v => v.id == e[0]),

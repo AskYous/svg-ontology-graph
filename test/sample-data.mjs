@@ -1,8 +1,8 @@
 export const vertices = [
-    { id: 0, data: { name: "Alice" } },
-    { id: 1, data: { name: "Bob" } },
-    { id: 2, data: { name: "Trudy" } },
-    { id: 3, data: { name: "Eve" } },
+    { id: 0, name: "Alice" },
+    { id: 1, name: "Bob" },
+    { id: 2, name: "Trudy" },
+    { id: 3, name: "Eve" },
 ];
 export const edges = [
     [0, 2],
