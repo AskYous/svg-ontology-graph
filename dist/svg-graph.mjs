@@ -97,4 +97,26 @@ export function SVGGraph(container, graph, options) {
         // save the vertex elements
         vertices.push(group);
     }
+
+    // create edge elements
+    for (let e of graph.edges) {
+        const path = document.createElementNS(XML_NAMESPACE, "path");
+        const v1 = vertices
+            .find(v => v.dataset.vertexId == e.vertex1.id)
+            .querySelector("rect");
+        const v2 = vertices
+            .find(v => v.dataset.vertexId == e.vertex2.id)
+            .querySelector("rect");
+        const x1 = v1.style.x;
+        const y1 = v1.style.y;
+        const x2 = v2.style.x;
+        const y2 = v2.style.y;
+
+        svg.appendChild(path);
+        path.classList.add("edge");
+        path.setAttribute("d", `
+            M${x1},${y1}
+            C${x2},${y1} ${x1},${y2} ${x2},${y2}
+        `);
+    }
 }

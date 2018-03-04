@@ -23,3 +23,10 @@ svg.svg-graph g.vertex text{
     font-size: var(--vertex-height);
     font-family: monospace;
 }
+
+/* the edges */
+svg.svg-graph path.edge{
+    stroke: white;
+    stroke-width: 5;
+    fill: none;
+}
