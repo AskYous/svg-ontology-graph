@@ -192,8 +192,8 @@ export function SVGGraph(container, graph, options) {
      */
     function commandPath(rect1, rect2, path) {
         // The vertex widths (including padding)
-        const w1 = rect1.getBoundingClientRect().width;
-        const w2 = rect2.getBoundingClientRect().width;
+        const w1 = rect1.style.width.slice(0, -2);
+        const w2 = rect2.style.width.slice(0, -2);
 
         // The x, y coordinates of both vertices
         const x1 = Number(rect1.style.x) + (w1 / 2) + VERTEX_PADDING;
