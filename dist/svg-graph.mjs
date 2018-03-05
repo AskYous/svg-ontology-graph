@@ -46,7 +46,6 @@ export function SVGGraph(container, graph, options) {
     const XML_NAMESPACE = "http://www.w3.org/2000/svg";
     const GRAPH_WIDTH = container.getBoundingClientRect().width;
     const GRAPH_HEIGHT = container.getBoundingClientRect().height;
-    console.log(container.getBoundingClientRect().width);
     const VERTEX_PADDING = 8;
     const CHAR_WIDTH = 15;
     const VERTEX_HEIGHT = 15;
@@ -65,6 +64,7 @@ export function SVGGraph(container, graph, options) {
     const arrow = document.createElementNS(XML_NAMESPACE, "marker");
     const arrowPath = document.createElementNS(XML_NAMESPACE, "path");
 
+    // create DOM tree
     container.appendChild(svg);
     svg.classList.add("svg-graph");
     svg.appendChild(defs);
