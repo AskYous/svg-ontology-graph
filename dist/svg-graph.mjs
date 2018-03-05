@@ -45,7 +45,8 @@ export class Options {
 export function SVGGraph(container, graph, options) {
     const XML_NAMESPACE = "http://www.w3.org/2000/svg";
     const GRAPH_WIDTH = container.getBoundingClientRect().width;
-    const GRAPH_HEIGHT = container.getBoundingClientRect().width;
+    const GRAPH_HEIGHT = container.getBoundingClientRect().height;
+    console.log(container.getBoundingClientRect().width);
     const VERTEX_PADDING = 8;
     const CHAR_WIDTH = 15;
     const VERTEX_HEIGHT = 15;
@@ -53,13 +54,32 @@ export function SVGGraph(container, graph, options) {
 
     // The SVG Element
     const svg = document.createElementNS(XML_NAMESPACE, "svg");
+    // definitions for use later
+    const defs = document.createElementNS(XML_NAMESPACE, "defs");
     // The  vertex elements
     const vertexElements = {};
     // The edge elements
     const edgeElements = {};
 
-    svg.classList.add("svg-graph");
+    // arrow
+    const arrow = document.createElementNS(XML_NAMESPACE, "marker");
+    const arrowPath = document.createElementNS(XML_NAMESPACE, "path");
+
     container.appendChild(svg);
+    svg.classList.add("svg-graph");
+    svg.appendChild(defs);
+    defs.appendChild(arrow);
+    arrow.appendChild(arrowPath);
+
+    // create arrow
+    arrow.id = "arrow";
+    arrow.setAttribute("markerWidth", "40");
+    arrow.setAttribute("markerHeight", "40");
+    arrow.setAttribute("refX", "-6");
+    arrow.setAttribute("refY", "6");
+    arrow.setAttribute("orient", "auto");
+    arrowPath.setAttribute("d", "M2,2 L2,11 L10,6 L2,2")
+    arrowPath.style.fill = "blue";
 
     // create vertex elements
     for (let v of graph.vertices) {
@@ -81,16 +101,33 @@ export function SVGGraph(container, graph, options) {
         // callback function when user holds a vertex
         let onMouseDown;
         const onMouseMove = function (event) {
+            // move the vertex & text
             rect.style.x = event.offsetX - VERTEX_MOUSE_SAFETY_AREA;
             rect.style.y = event.offsetY - VERTEX_MOUSE_SAFETY_AREA;
             text.setAttribute("x", event.offsetX + (VERTEX_PADDING / 2));
             text.setAttribute("y", event.offsetY + (VERTEX_PADDING / 2));
 
-            for (let e in edgeElements[v.id]) {
-                const v2 = vertexElements[e];
-                const edge = edgeElements[v.id][e];
+            // move edges too
+            for (let vertex2Id in edgeElements[v.id]) {
+                /* other vertex */
+                const v2 = vertexElements[vertex2Id];
+                /* rect of vertex 2 */
                 const rect2 = svg.querySelector(`[data-vertex-id="${v2.dataset.vertexId}"] rect`);
-                commandPath(rect, rect2, edge);
+                /* the edge path element */
+                let edge;
+
+                /**
+                 * In order to get the path, we have to look for the path in the hashtable 
+                 * by either getting key v1.id, v2.id or v2.id, v1.id, depending on that their
+                 * .direction returns.
+                 */
+                if (edgeElements[v.id][vertex2Id].direction) {
+                    edge = edgeElements[v.id][vertex2Id].path;
+                    commandPath(rect, rect2, edge);
+                } else {
+                    edge = edgeElements[vertex2Id][v.id].path;
+                    commandPath(rect2, rect, edge);
+                }
             }
         };
         let onMouseUp;
@@ -139,12 +176,12 @@ export function SVGGraph(container, graph, options) {
         // The rect elements for both vertices
         const r1 = vertexElements[e.vertex1.id].querySelector("rect");
         const r2 = vertexElements[e.vertex2.id].querySelector("rect");
-
+        path.setAttribute("marker-start", "url(#arrow)");
         commandPath(r1, r2, path);
 
         // save the edges (but no direction yet)
-        edgeElements[e.vertex1.id][e.vertex2.id] = path;
-        edgeElements[e.vertex2.id][e.vertex1.id] = path;
+        edgeElements[e.vertex1.id][e.vertex2.id] = { path, direction: true };
+        edgeElements[e.vertex2.id][e.vertex1.id] = { path, direction: false };
     }
 
     /**
