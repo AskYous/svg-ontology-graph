@@ -198,7 +198,7 @@ export function SVGGraph(container, graph, options) {
         // The x, y coordinates of both vertices
         const x1 = Number(rect1.style.x) + (w1 / 2) + VERTEX_PADDING;
         const y1 = Number(rect1.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
-        const x2 = Number(rect2.style.x) + (w1 / 2) + VERTEX_PADDING;
+        const x2 = Number(rect2.style.x) + (w2 / 2) + VERTEX_PADDING;
         const y2 = Number(rect2.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
 
         // calculate a smooth curve's control points
