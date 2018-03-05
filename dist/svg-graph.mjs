@@ -76,7 +76,7 @@ export function SVGGraph(container, graph, options) {
     arrow.setAttribute("markerWidth", "40");
     arrow.setAttribute("markerHeight", "40");
     arrow.setAttribute("refX", "-6");
-    arrow.setAttribute("refY", "6");
+    arrow.setAttribute("refY", "7");
     arrow.setAttribute("orient", "auto");
     arrowPath.setAttribute("d", "M2,2 L2,11 L10,6 L2,2")
     arrowPath.style.fill = "blue";
