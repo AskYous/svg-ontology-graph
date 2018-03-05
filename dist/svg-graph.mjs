@@ -201,6 +201,12 @@ export function SVGGraph(container, graph, options) {
         const x2 = Number(rect2.style.x) + (w1 / 2) + VERTEX_PADDING;
         const y2 = Number(rect2.style.y) + (VERTEX_HEIGHT / 2) + VERTEX_PADDING;
 
+        // calculate a smooth curve's control points
+        const cx1 = x1 + (.25 * (x2 - x1));
+        const cy1 = y1 + (.75 * (y2 - y1));
+        const cx2 = x1 + (.75 * (x2 - x1));
+        const cy2 = y1 + (.25 * (y2 - y1));
+
         // add path to svg
         svg.insertBefore(path, svg.firstChild);
 
@@ -210,7 +216,7 @@ export function SVGGraph(container, graph, options) {
         // create the path commands
         path.setAttribute("d", `
             M${x1},${y1}
-            C${x2},${y1} ${x1},${y2} ${x2},${y2}
+            C${cx1},${cy1} ${cx2},${cy2} ${x2},${y2}
         `);
 
         return path;

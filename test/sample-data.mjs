@@ -6,6 +6,8 @@ export const vertices = [
 ];
 export const edges = [
     [0, 2],
+    [0, 1],
+    [2, 3],
     [1, 3],
     [3, 0],
 ];
