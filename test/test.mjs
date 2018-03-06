@@ -22,13 +22,11 @@ const edges = SampleData.edges
 // serve index.html in a web server
 app.get('/', (req, res) => res.sendFile(`${__dirname}/test/index.html`));
 
-app.get('/', (req, res) => res.sendFile(`${__dirname}/test/index.html`));
-
 // serve sample-data.js
 app.get('/sample-data.mjs', (req, res) => res.sendFile(`${__dirname}/test/sample-data.mjs`));
 
 // serve graph.js too
-app.use(express.static('dist'));
+app.use(express.static('./'));
 
 // start the web server on port 3000
 app.listen(3000, async () => {
