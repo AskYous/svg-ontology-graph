@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha dist/test/test.js"
+    "test": "node --experimental-modules test/test.mjs",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && mkdir dist && babel src -s -d dist",
+    "production": "npm build && node bin/production"
   },
   "repository": {
     "type": "git",
@@ -16,10 +19,9 @@
     "url": "https://github.com/AskYous/islam-database/issues"
   },
   "homepage": "https://github.com/AskYous/islam-database#readme",
-  "dependencies": {
-    "typescript": "^1.8.10"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "mocha": "^3.0.2"
+    "express": "^4.16.2",
+    "puppeteer": "^1.1.1"
   }
 }

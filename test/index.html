@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="../dist/svg-graph.css">
+    <style>
+        #container,
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+        }
+
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    <script type="module">
+        import * as SVGGraph from "../dist/svg-graph.mjs";
+        import * as sampleData from "./sample-data.mjs";
+
+        const vertices = sampleData.vertices.map(v => new SVGGraph.Vertex(v.id, v.name));
+        const edges = sampleData.edges
+            .map(e => new SVGGraph.Edge(
+                vertices.find(v => v.id == e[0]),
+                vertices.find(v => v.id == e[1])
+            ));
+
+        SVGGraph.SVGGraph(
+            document.querySelector('#container'),
+            new SVGGraph.Graph(vertices, edges),
+        );
+    </script>
+</head>
+
+<body>
+    <div id="container"></div>
+</body>
+
+</html>
